@@ -1,0 +1,95 @@
+.layout{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  padding:10px;
+}
+
+.wall{
+  display:flex;
+  justify-content:center;
+}
+
+.aisle{
+  display:flex;
+  gap:10px;
+  justify-content:space-between;
+}
+
+.block{
+  border:1px solid #ddd;
+  padding:8px;
+  background:#fafafa;
+  border-radius:6px;
+}
+
+.pair{
+  display:flex;
+  gap:8px; /* tighter gap within a pair */
+}
+
+.label{
+  font-weight:600;
+  margin-bottom:8px;
+  text-align:center;
+}
+
+.slots{
+  display:grid;
+  grid-template-columns: repeat(4, minmax(28px, 1fr));
+  gap:8px;
+}
+
+.slots.wide{
+  grid-template-columns: repeat(20, minmax(20px, 1fr));
+}
+
+.slots.vertical{
+  display:flex;
+  flex-direction:column;
+}
+
+.slot{
+  border:1px solid #ccc;
+  background:#fff;
+  border-radius:6px;
+  min-width:28px;
+  aspect-ratio: 1 / 1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:12px;
+  line-height:1;
+  text-align:center;
+}
+
+/* removed filled state per latest requirement */
+
+.slot.highlight{
+  background:#fff; /* keep base white, use border/glow for signal */
+}
+
+.slot.highlight.checkin{
+  background-color:#34c759; /* green */
+  color:white;
+}
+
+.slot.highlight.checkout{
+  background-color:#ef4444; /* red */
+  box-shadow:0 0 0 2px #ef4444 inset;
+}
+
+.entry{
+  text-align:center;
+  font-weight:600;
+}
+
+.error{
+  color:#b00020;
+  background:#fde7e9;
+  border:1px solid #f5c2c7;
+  padding:8px;
+  margin:8px 16px;
+  border-radius:4px;
+}
+

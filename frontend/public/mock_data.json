@@ -1,0 +1,52 @@
+[
+  {
+    "slot_id": 1,
+    "roll_no": "240107062",
+    "status": "checkin"
+  },
+  {
+    "slot_id": 2,
+    "roll_no": "240107063",
+    "status": "checkout"
+  },
+  {
+    "slot_id": 3,
+    "roll_no": "240107064",
+    "status": "checkin"
+  },
+  {
+    "slot_id": 4,
+    "roll_no": "240107065",
+    "status": "checkout"
+  },
+  {
+    "slot_id": 5,
+    "roll_no": "240107066",
+    "status": "checkin"
+  },
+  {
+    "slot_id": 6,
+    "roll_no": "240107067",
+    "status": "checkout"
+  },
+  {
+    "slot_id": 7,
+    "roll_no": "240107068",
+    "status": "checkin"
+  },
+  {
+    "slot_id": 8,
+    "roll_no": "240107069",
+    "status": "checkout"
+  },
+  {
+    "slot_id": 9,
+    "roll_no": "240107070",
+    "status": "checkin"
+  },
+  {
+    "slot_id": 10,
+    "roll_no": "240107071",
+    "status": "checkout"
+  }
+]
