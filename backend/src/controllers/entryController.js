@@ -11,28 +11,30 @@ export const addDeleteEntry = (async(req, res)=>{
     try{
         const existing = await prisma.entry.findUnique({where:{roll_no:rollNo}});
         if(existing){
+            // retrive 
             await prisma.entry.delete({where:{roll_no:rollNo}});
             await prisma.slot.update({
-                where:{slot_id:existing.allocated_slot},
-                data:{is_empty:true}
+                where:{id:existing.slotId},
+                data:{isEmpty:true}
             });
-            return res.status(200).json({message:"checkout successfull", checkout_slot:existing.allocated_slot});
+            return res.status(200).json({message:"checkout successfull", checkout_slot:existing.slotId});
         }else{
-            const slot = await findFirstEmptySlot();
-            if(!slot){
-                return res.status(400).json({messagr:"no empty slot is available"});
+            //entry 
+            const emptySlot = await findFirstEmptySlot();
+            if(!emptySlot){
+                return res.status(400).json({message:"no empty slot is available"});
             }
             const newEntry = await prisma.entry.create({
-                data:{roll_no:rollNo, allocated_slot:slot.slot_id},
+                data:{roll_no:rollNo, slotId:emptySlot.id},
             })
             await prisma.slot.update({
-                where:{slot_id:slot.slot_id},
-                data:{is_empty:false}
+                where:{id:emptySlot.id},
+                data:{isEmpty:false}
             });
             // return res.send(entry);
             console.log(newEntry);
-            console.log(slot.slot_id);
-            return res.status(200).json({message:"Check-in successful",checkin_slot: slot.slot_id });
+            console.log(emptySlot.id);
+            return res.status(200).json({message:"Check-in successful",checkin_slot: emptySlot.id });
         }
     }catch (err) {
         console.error(err);
