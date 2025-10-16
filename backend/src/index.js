@@ -4,6 +4,7 @@ import cors from "cors";
 import prisma, { connectDatabase,disconnectDatabase } from "./db/config.js";
 import entryRoute from "./routes/entryRoute.js";
 import authRoute from "./routes/authRoute.js";
+import getSlotRoutes from "./routes/getSlotRoutes.js";
 
 
 const app = express();
@@ -15,7 +16,7 @@ await connectDatabase();
 
 app.use("/api/", entryRoute);
 app.use("/api/", authRoute);
-
+app.use("/api/", getSlotRoutes);
 
 app.get("/", (req, res)=>{
     res.send("Hi there");
