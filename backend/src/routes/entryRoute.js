@@ -4,6 +4,6 @@ import { authenticateToken } from "../middlewares/authMiddleware.js"
 
 const router = express.Router();
 
-router.post("/entry", authenticateToken, addDeleteEntry);
+router.post("/entry", addDeleteEntry);
 
 export default router;

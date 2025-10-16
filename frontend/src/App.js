@@ -1,25 +1,26 @@
 import './App.css';
 import { useState } from 'react';
-import RollEntry from './components/RollNoEntry';
-import SlotCard from './components/SlotNumber';
+import InputPage from './pages/inputPage';
+import ShelfPage from './pages/shelfPage';
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { SlotProvider } from './context/SlotContext.js';
+
 
 function App() {
-  const [rollNumber, setRollNumber] = useState('');
-  const [showSlot, setShowSlot] = useState(false);
-  const handleGetSlot = () => {
-    if (rollNumber.trim() === '') {
-      alert('Please enter a roll number first!');
-      return;
-    }
-    setShowSlot(true); 
-  };
-
+  const [showSlot, setShowSlot] = useState("");
+  const [status, setStatus] = useState("");
+  console.log(showSlot);
+  console.log(status);
   return (
     <div className="App">
-      <h1>Slot Allocation</h1>
-      <RollEntry rollNumber={rollNumber} setRollNumber={setRollNumber} />
-      <button onClick={handleGetSlot}>Get Slot Number</button>
-      {showSlot && <SlotCard rollNumber={rollNumber} />}
+      <Router>
+        <SlotProvider>
+          <Routes>
+            <Route path="/" element={<InputPage />} />
+            <Route path="/shelf" element={<ShelfPage />} />
+          </Routes>
+        </SlotProvider>
+      </Router>
     </div>
   );
 }

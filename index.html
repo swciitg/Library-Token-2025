@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Library Slot System</title>
 </head>
+
 <body>
   <form>
     <input type="number" id="input" placeholder="Enter your roll number" />
@@ -19,6 +21,17 @@
     const inputData = document.getElementById("input");
     const slotInfo = document.getElementById("slot");
     const statusText = document.getElementById("status");
+    inputData.focus(); 
+
+    // Keep focus even if user clicks elsewhere
+    document.addEventListener("click", () => {
+      input.focus();
+    });
+
+    // Optional: Refocus if user tabs out
+    input.addEventListener("blur", () => {
+      setTimeout(() => input.focus(), 0);
+    });
 
     submitButton.addEventListener("click", async (event) => {
       event.preventDefault();
@@ -49,8 +62,10 @@
 
         if (data.checkin_slot) {
           slotInfo.textContent = `Slot allotted: ${data.checkin_slot}`;
+          inputData.value = "";
         } else if (data.checkout_slot) {
           slotInfo.textContent = `Slot released: ${data.checkout_slot}`;
+          inputData.value = "";
         } else {
           slotInfo.textContent = "";
         }
@@ -62,4 +77,5 @@
     });
   </script>
 </body>
+
 </html>
