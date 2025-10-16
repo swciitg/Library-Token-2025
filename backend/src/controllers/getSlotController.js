@@ -14,9 +14,15 @@ const getSlotByRollNumber = async (req, res) => {
         if(!entry){
             return res.status(404).json({message: "Entry not found"});
         }
+        const now = new Date();
+        const formattedDate = now.toISOString().split("T")[0];
+        const formattedTime = now.toTimeString().split(" ")[0];
         return res.status(200).json({
-            slotId: entry.slot.id,
-            isEmpty: entry.slot.isEmpty
+          slotId: entry.slot.id,
+          isEmpty: entry.slot.isEmpty,
+          time: Date.now(),
+          date: formattedDate,
+          time: formattedTime,
         });
     }
     catch(error) {
