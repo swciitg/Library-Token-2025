@@ -1,23 +1,25 @@
-import logo from './logo.svg';
 import './App.css';
+import { useState } from 'react';
+import RollEntry from './components/RollNoEntry';
+import SlotCard from './components/SlotNumber';
 
 function App() {
+  const [rollNumber, setRollNumber] = useState('');
+  const [showSlot, setShowSlot] = useState(false);
+  const handleGetSlot = () => {
+    if (rollNumber.trim() === '') {
+      alert('Please enter a roll number first!');
+      return;
+    }
+    setShowSlot(true); 
+  };
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <h1>Slot Allocation</h1>
+      <RollEntry rollNumber={rollNumber} setRollNumber={setRollNumber} />
+      <button onClick={handleGetSlot}>Get Slot Number</button>
+      {showSlot && <SlotCard rollNumber={rollNumber} />}
     </div>
   );
 }
