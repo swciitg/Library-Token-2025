@@ -116,3 +116,5 @@ out/
 .docusaurus
 
 .svelte-kit
+
+/src/generated/prisma

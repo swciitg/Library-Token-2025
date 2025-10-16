@@ -1,5 +1,6 @@
 import express from "express";
-import dotenv from "dotenv"
+import dotenv from "dotenv";
+import prisma from "./db/config.js";
 
 const app = express();
 dotenv.config();

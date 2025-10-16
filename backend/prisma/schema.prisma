@@ -1,0 +1,23 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+model Slot {
+  id        Int      @id
+  isEmpty   Boolean  @default(true)
+  entry     Entry?
+}
+
+model Entry {
+  id        Int     @id @default(autoincrement())
+  roll_no   BigInt  
+  createdAt DateTime @default(now())
+  slot      Slot    @relation(fields: [slotId], references: [id])
+  slotId    Int     @unique
+}
