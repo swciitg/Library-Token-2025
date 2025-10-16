@@ -16,7 +16,7 @@ model Slot {
 
 model Entry {
   id        Int     @id @default(autoincrement())
-  roll_no   BigInt  
+  roll_no   BigInt  @unique
   createdAt DateTime @default(now())
   slot      Slot    @relation(fields: [slotId], references: [id])
   slotId    Int     @unique

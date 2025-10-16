@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Library Slot System</title>
+</head>
+<body>
+  <form>
+    <input type="number" id="input" placeholder="Enter your roll number" />
+    <button id="submit" type="submit">Submit</button>
+  </form>
+
+  <h3 id="status"></h3>
+  <p id="slot"></p>
+
+  <script>
+    const submitButton = document.getElementById("submit");
+    const inputData = document.getElementById("input");
+    const slotInfo = document.getElementById("slot");
+    const statusText = document.getElementById("status");
+
+    submitButton.addEventListener("click", async (event) => {
+      event.preventDefault();
+
+      const rollNo = inputData.value.trim();
+      if (!rollNo) {
+        alert("Please enter a roll number");
+        return;
+      }
+
+      try {
+        const res = await fetch("http://localhost:5001/api/entry", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ rollNo }), // <-- use same key as backend
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          statusText.textContent = data.message || "Server Error!";
+          slotInfo.textContent = "";
+          return;
+        }
+
+        // Display result based on backend message
+        statusText.textContent = data.message;
+
+        if (data.checkin_slot) {
+          slotInfo.textContent = `Slot allotted: ${data.checkin_slot}`;
+        } else if (data.checkout_slot) {
+          slotInfo.textContent = `Slot released: ${data.checkout_slot}`;
+        } else {
+          slotInfo.textContent = "";
+        }
+      } catch (err) {
+        console.error(err);
+        statusText.textContent = "Network error!";
+        slotInfo.textContent = "";
+      }
+    });
+  </script>
+</body>
+</html>

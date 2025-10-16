@@ -1,6 +1,6 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import prisma from "../../prisma/prismaClient";
+import prisma from "../db/config.js";
 
 const registerUser = async (userData) => {
   const { email, password } = userData;
@@ -42,4 +42,4 @@ const loginUser = async (email, password) => {
   };
 };
 
-module.exports = { registerUser, loginUser };
+export {registerUser, loginUser};
