@@ -4,6 +4,7 @@ import cors from "cors";
 import prisma, { connectDatabase,disconnectDatabase } from "./db/config.js";
 import entryRoute from "./routes/entryRoute.js";
 
+
 const app = express();
 dotenv.config();
 app.use(cors());

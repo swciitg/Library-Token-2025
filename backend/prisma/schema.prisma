@@ -1,34 +1,24 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
-        
+
 
 model Slot {
-  slot_id  Int     @id 
-  is_empty Boolean @default(true)
-
-  // back-relation
-  entry    Entry?  // Slot can have 0 or 1 Entry
+  id        Int      @id
+  isEmpty   Boolean  @default(true)
+  entry     Entry?
 }
 
 model Entry {
-  roll_no        Int      @id
-  allocated_slot Int      @unique
-  timestamp      DateTime @default(now())
-
-  // relation to Slot (foreign key side)
-  slot Slot @relation(fields: [allocated_slot], references: [slot_id])
+  id        Int     @id @default(autoincrement())
+  roll_no   BigInt  
+  createdAt DateTime @default(now())
+  slot      Slot    @relation(fields: [slotId], references: [id])
+  slotId    Int     @unique
 }
