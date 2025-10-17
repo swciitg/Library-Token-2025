@@ -34,6 +34,18 @@
   text-align:center;
 }
 
+/* make certain shelf headings sticky (e.g. Shelf 1 and Shelf 2) */
+.label.sticky{
+  position: -webkit-sticky; /* for Safari */
+  position: sticky;
+  top: 0; /* stick to the top of the visible shelf area */
+  z-index: 40; /* sit above slots */
+  background: linear-gradient(180deg, rgba(250,250,250,0.95), rgba(250,250,250,0.95));
+  padding: 6px 8px;
+  border-radius: 6px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+}
+
 .slots{
   display:grid;
   grid-template-columns: repeat(4, minmax(28px, 1fr));
