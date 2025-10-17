@@ -5,10 +5,8 @@ import { useSlot } from "../context/SlotContext.js";
 
 export default function RollEntry() {
   const [rollNo, setRollNo] = useState("");
-  // const [status, setStatus] = useState("");
   const [slotInfo, setSlotInfo] = useState("");
   const { setShowSlot, setStatus, setRollNumber } = useSlot();
-
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -47,9 +45,15 @@ export default function RollEntry() {
   };
 
   return (
-    <div className="roll-entry">
-      <form onSubmit={handleSubmit}>
-        <label htmlFor="roll">Enter Roll Number:</label>
+    <>
+    <div className="flex flex-col items-center justify-center min-h-[60vh]">
+      <form 
+        onSubmit={handleSubmit} 
+        className="flex flex-col items-center bg-white p-8 rounded-lg shadow-lg space-y-6 w-80"
+      >
+        <label htmlFor="roll" className="text-lg font-semibold">
+          Enter your Roll Number:
+        </label>
         <input
           id="roll"
           type="number"
@@ -57,11 +61,17 @@ export default function RollEntry() {
           onChange={(e) => setRollNo(e.target.value)}
           placeholder="Enter your roll number"
           autoFocus
+          className="border border-gray-300 rounded-md px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
-        <button type="submit">Get Slot</button>
+        <button
+          type="submit"
+          className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-md w-full transition"
+        >
+          Get Slot
+        </button>
       </form>
-      {/* <p>{status}</p> */}
-      <p>{slotInfo}</p>
+      {slotInfo && <p className="mt-4 text-center text-gray-700">{slotInfo}</p>}
     </div>
+    </>
   );
 }
