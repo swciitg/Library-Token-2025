@@ -1,13 +1,11 @@
-import React, { useEffect } from 'react';
-import './shelf.css';
-import { useNavigate } from 'react-router-dom';
-import { useSlot } from '../context/SlotContext.js';
+import React, { useEffect } from "react";
+import "./shelf.css";
+import { useNavigate } from "react-router-dom";
+import { useSlot } from "../context/SlotContext.js";
 
 function Shelfs() {
   const navigate = useNavigate();
   const { showSlot, status, setShowSlot, setStatus, rollNumber } = useSlot();
-
-
 
   const shelfStructure = {
     1: Array.from({ length: 84 }, (_, i) => i + 1),
@@ -19,20 +17,23 @@ function Shelfs() {
     },
     5: {
       A: Array.from({ length: 90 }, (_, i) => i + 405),
-      B: Array.from({ length: 91 }, (_, i) => i + 495),
+      B: Array.from({ length: 90 }, (_, i) => i + 495),
     },
   };
 
   const getSlotClass = (slotNumber) => {
     if (Number(showSlot) === Number(slotNumber)) {
-      if (status === 'checkin') return 'slot highlight checkin';
-      if (status === 'checkout') return 'slot highlight checkout';
+      if (status === "checkin") return "slot highlight checkin";
+      if (status === "checkout") return "slot highlight checkout";
     }
-    return 'slot';
+    return "slot";
   };
 
   // Helper to render slots for any shelf
-  const renderSlots = (slotsArray) => {
+  const renderSlots = (slotsArray, shelfNumber) => {
+    if (shelfNumber === 1 || shelfNumber === "4A" || shelfNumber === "5A") {
+      slotsArray = [...slotsArray].reverse();
+    }
     return slotsArray.map((n) => (
       <div key={n} className={getSlotClass(n)}>
         {n}
@@ -40,13 +41,13 @@ function Shelfs() {
     ));
   };
 
-  const newEntry = ()=>{
+  const newEntry = () => {
     setShowSlot("");
     setStatus("");
     navigate("/");
-  }
-   // press enter to go newEntry
-   useEffect(() => {
+  };
+  // press enter to go newEntry
+  useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === "Enter") {
         e.preventDefault();
@@ -78,7 +79,7 @@ function Shelfs() {
       <div className="aisle">
         <div className="shelf block">
           <div className="label">Shelf 1 (1-84)</div>
-          <div className="slots">{renderSlots(shelfStructure[1])}</div>
+          <div className="slots">{renderSlots(shelfStructure[1], 1)}</div>
         </div>
 
         <div className="pair">
@@ -88,7 +89,9 @@ function Shelfs() {
           </div>
           <div className="shelf block">
             <div className="label">Shelf 5-A (405-494)</div>
-            <div className="slots">{renderSlots(shelfStructure[5].A)}</div>
+            <div className="slots">
+              {renderSlots(shelfStructure[5].A, "5A")}
+            </div>
           </div>
         </div>
 
@@ -99,7 +102,9 @@ function Shelfs() {
           </div>
           <div className="shelf block">
             <div className="label">Shelf 4-A (225-314)</div>
-            <div className="slots">{renderSlots(shelfStructure[4].A)}</div>
+            <div className="slots">
+              {renderSlots(shelfStructure[4].A, "4A")}
+            </div>
           </div>
         </div>
 
