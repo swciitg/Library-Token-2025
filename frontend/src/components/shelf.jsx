@@ -29,18 +29,38 @@ function Shelfs() {
     return "slot";
   };
 
-  // Helper to render slots for any shelf
   const renderSlots = (slotsArray, shelfNumber) => {
     if (shelfNumber === 1 || shelfNumber === "4A" || shelfNumber === "5A") {
       slotsArray = [...slotsArray].reverse();
     }
     return slotsArray.map((n) => (
-      <div key={n} className={getSlotClass(n)}>
+      <div
+        key={n}
+        className={getSlotClass(n)}
+        data-slot={n} // <-- add a data attribute
+        id={`slot-${n}`} // <-- optional id
+      >
         {n}
       </div>
     ));
   };
 
+  useEffect(() => {
+    if (!showSlot) return;
+    
+    const selector = `[data-slot="${showSlot}"]`;
+    let el =
+      document.querySelector(selector) ||
+      document.querySelector(`[data-slot="${Number(showSlot)}"]`);
+    if (el) {
+      el.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+        inline: "center",
+      });
+    }
+  }, [showSlot]);
+  
   const newEntry = () => {
     setShowSlot("");
     setStatus("");

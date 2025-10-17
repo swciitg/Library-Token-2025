@@ -92,3 +92,7 @@
   margin:8px 16px;
   border-radius:4px;
 }
+
+.slot {
+  scroll-margin-block: 40px; /* gives some space when centered */
+}
