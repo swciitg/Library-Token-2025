@@ -79,36 +79,41 @@ function Shelfs() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
+  const statusBorderClass =
+    status === "checkin" ? "bg-green-500 , border-4" : status === "checkout" ? "bg-red-500" : "border-indigo-100";
+
   return (
-    <div className="layout">
+    <div className="layout pt-36 pr-80 px-4">
       {/* Display current slot and status */}
-      <div className="current-status">
-        <p>Roll number: {rollNumber}</p>
-        <p>Selected Slot: {showSlot}</p>
-        <p>Status: {status}</p>
-        <button onClick={newEntry}>Done</button>
+      <div className={`current-status fixed right-8  w-72 rounded-xl border  bg-white/95 backdrop-blur shadow-xl p-5 space-y-2 z-50 text-base text-gray-800`}>
+        {/* <p className="font-semibold">Roll number: {rollNumber}</p> */}
+        <p className="font-semibold flex-col"><p className="mb-2">Slot No:</p> <div className={`${statusBorderClass} p-10 text-4xl rounded-xl text-white `}>{showSlot}</div></p>
+        {/* <p className="font-semibold">Status: {status}</p> */}
+        <button onClick={newEntry} className="mt-3 w-full rounded-md bg-indigo-600 px-4 py-2.5 text-white shadow hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+          Done
+        </button>
       </div>
 
-      <div className="wall">
+      <div className="wall"> 
         <div className="shelf block">
-          <div className="label">Shelf 2 (85-140)</div>
+          <div className="label ">Shelf 2 (85-140)</div>
           <div className="slots wide">{renderSlots(shelfStructure[2])}</div>
         </div>
       </div>
 
       <div className="aisle">
         <div className="shelf block">
-          <div className="label">Shelf 1 (1-84)</div>
+          <div className="label sticky">Shelf 1 (1-84)</div>
           <div className="slots">{renderSlots(shelfStructure[1], 1)}</div>
         </div>
 
         <div className="pair">
           <div className="shelf block">
-            <div className="label">Shelf 5-B (495-585)</div>
+              <div className="label sticky">Shelf 5-B (495-585)</div>
             <div className="slots">{renderSlots(shelfStructure[5].B)}</div>
           </div>
           <div className="shelf block">
-            <div className="label">Shelf 5-A (405-494)</div>
+            <div className="label sticky">Shelf 5-A (405-494)</div>
             <div className="slots">
               {renderSlots(shelfStructure[5].A, "5A")}
             </div>
@@ -117,11 +122,11 @@ function Shelfs() {
 
         <div className="pair">
           <div className="shelf block">
-            <div className="label">Shelf 4-B (315-404)</div>
+            <div className="label sticky">Shelf 4-B (315-404)</div>
             <div className="slots">{renderSlots(shelfStructure[4].B)}</div>
           </div>
           <div className="shelf block">
-            <div className="label">Shelf 4-A (225-314)</div>
+            <div className="label sticky">Shelf 4-A (225-314)</div>
             <div className="slots">
               {renderSlots(shelfStructure[4].A, "4A")}
             </div>
@@ -129,7 +134,7 @@ function Shelfs() {
         </div>
 
         <div className="shelf block">
-          <div className="label">Shelf 3 (141-224)</div>
+          <div className="label sticky">Shelf 3 (141-224)</div>
           <div className="slots">{renderSlots(shelfStructure[3])}</div>
         </div>
       </div>
