@@ -1,14 +1,14 @@
 import RollEntry from "../components/RollNoEntry";
-import Shelfs from "../components/shelf";
-
-
-export default function inputPage(){
-    return (
-        <div>
-            <h1 className="hover:text-gray-300 transition-all duration-150">Slot Allocation</h1>
-
+import {Header}  from "../components/Header";
+import {Footer} from "../components/Footer";
+export default function InputPage() {
+  return (
+    <div className="bg-white min-h-screen flex flex-col">
+        <Header />
+        <div className="flex-grow flex items-center justify-center border-b border-gray-400">
             <RollEntry />
-            {/* <Shelfs showSlot={showSlot} status={status}/> */}
         </div>
-    )
+        <Footer />
+    </div>
+  );
 }
