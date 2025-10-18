@@ -81,14 +81,15 @@
   background:#fff; /* keep base white, use border/glow for signal */
 }
 
-.slot.highlight.checkin{
-  background-color:#34c759; /* green */
-  color:white;
+.slot.highlight.checkin {
+  background-color: #ffffff; /* white*/
+  color: #ffffff;
+  cursor: not-allowed;
 }
 
-.slot.highlight.checkout{
-  background-color:#ef4444; /* red */
-  box-shadow:0 0 0 2px #ef4444 inset;
+.slot.highlight.checkout {
+  color: #111111; /* gray*/
+  background-color: #D9D9D9;
 }
 
 .entry{
@@ -107,4 +108,12 @@
 
 .slot {
   scroll-margin-block: 40px; /* gives some space when centered */
+}
+
+.slot.filled {
+  background-color: #e5e7eb; /* gray */
+}
+
+.slot.empty {
+  background-color: #ffffff; /* white */
 }

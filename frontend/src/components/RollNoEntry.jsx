@@ -41,7 +41,7 @@ export default function RollEntry() {
     }
     setRollNumber(rollNo);
 
-    navigate("/shelf");
+    navigate("/slot");
   };
 
   return (
@@ -52,7 +52,7 @@ export default function RollEntry() {
         className="flex flex-col items-center bg-white p-8 rounded-lg shadow-lg space-y-6 w-80"
       >
         <label htmlFor="roll" className="text-lg font-semibold">
-          Enter your Roll Number:
+          Enter your Roll Number
         </label>
         <input
           id="roll"
