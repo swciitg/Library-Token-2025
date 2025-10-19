@@ -3,6 +3,8 @@
   flex-direction:column;
   gap:10px;
   padding:10px;
+  padding-left: 16px;
+  padding-right: 16px;
 }
 
 .wall{
@@ -19,13 +21,13 @@
 .block{
   border:1px solid #ddd;
   padding:8px;
-  background:#fafafa;
+  background:#EEF1F4;
   border-radius:6px;
 }
 
 .pair{
   display:flex;
-  gap:8px; /* tighter gap within a pair */
+  gap:8px;
 }
 
 .label{
@@ -34,7 +36,6 @@
   text-align:center;
 }
 
-/* make certain shelf headings sticky (e.g. Shelf 1 and Shelf 2) */
 .label.sticky{
   position: -webkit-sticky; /* for Safari */
   position: sticky;
@@ -61,8 +62,8 @@
   flex-direction:column;
 }
 
-.slot{
-  border:1px solid #ccc;
+.slot {
+  border: solid 1px #00A600;
   background:#fff;
   border-radius:6px;
   min-width:28px;
@@ -75,21 +76,20 @@
   text-align:center;
 }
 
-/* removed filled state per latest requirement */
-
-.slot.highlight{
-  background:#fff; /* keep base white, use border/glow for signal */
+.slot.highlight {
+  background:#fff;
 }
 
 .slot.highlight.checkin {
-  background-color: #ffffff; /* white*/
-  color: #ffffff;
+  background-color: #D9D9D9; /* gray */
+  color: black;
+  border: solid 1px #D9D9D9;
   cursor: not-allowed;
 }
 
 .slot.highlight.checkout {
-  color: #111111; /* gray*/
-  background-color: #D9D9D9;
+  color: #111111;
+  background-color: #fff;
 }
 
 .entry{
