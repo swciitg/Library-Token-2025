@@ -2,12 +2,15 @@ import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSlot } from "../context/SlotContext.js";
 import "./shelf.css";
+import { changeDb } from "../hooks/allotAndChange.js";
 
 function Shelfs() {
   const navigate = useNavigate();
-  const { showSlot, status, setShowSlot, setStatus } = useSlot();
+  const { showSlot, status, setShowSlot, setStatus, rollNumber } = useSlot();
 
-  const newEntry = () => {
+  const newEntry = async () => {
+    await changeDb(rollNumber, showSlot);
+    console.log(`${rollNumber} , ${showSlot}`);
     setShowSlot("");
     setStatus("");
     navigate("/");
