@@ -24,6 +24,8 @@ function Shelfs() {
     },
   };
 
+
+  
   // 🔹 Function to determine slot color
   const getSlotClass = (slotNumber) => {
     if (Number(showSlot) === Number(slotNumber)) {

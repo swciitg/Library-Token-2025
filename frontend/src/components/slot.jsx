@@ -14,6 +14,10 @@ function Shelfs() {
     setShowSlot("");
     setStatus("");
     navigate("/");
+
+
+
+    
   };
   const SlotClass = () => {
     if (status === "slot-allot")
