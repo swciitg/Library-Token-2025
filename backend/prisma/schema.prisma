@@ -11,7 +11,13 @@ datasource db {
 model Slot {
   id        Int      @id
   isEmpty   Boolean  @default(true)
+  shelfId   Int 
   entry     Entry?
+}
+
+model ShelfStatus {
+  shelfId   Int   @id
+  nextEmpty Int?  
 }
 
 model Entry {
