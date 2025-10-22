@@ -24,10 +24,12 @@ function Shelfs() {
     },
   };
 
+
+  
   // 🔹 Function to determine slot color
   const getSlotClass = (slotNumber) => {
     if (Number(showSlot) === Number(slotNumber)) {
-      if (status === "checkin") return "slot highlight checkin";   // white
+      if (status === "slot-allot") return "slot highlight checkin";   // white
       if (status === "checkout") return "slot highlight checkout"; // gray
     }
     return "slot";
