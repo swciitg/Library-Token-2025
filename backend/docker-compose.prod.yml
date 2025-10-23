@@ -1,0 +1,21 @@
+version: "3.3"
+services:
+  cult_app:
+    container_name: library_token_backend_prod
+    image: library_token_backend_prod
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    restart: always
+    ports:
+      - "9574:3001"
+    env_file:
+      - .env.prod
+    networks:
+      - librarytoken_backend
+
+
+
+networks:
+  librarytoken_backend:
+    external: true
