@@ -25,7 +25,7 @@ const getSlotByRollNumber = async (req, res) => {
                 });
             }
             return res.status(200).json({
-          slotId: "",
+          slotId: null,
           isEmpty: true,
           time: Date.now(),
           date: formattedDate,
