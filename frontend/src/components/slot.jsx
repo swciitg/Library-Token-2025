@@ -27,15 +27,35 @@ function Shelfs() {
   };
 
   useEffect(() => {
+    let inputBuffer = "";
+    let lastKeyTime = Date.now();
+
     const handleKeyDown = (e) => {
-      if (e.key === "Enter") {
+      const currentTime = Date.now();
+      const timeDiff = currentTime - lastKeyTime;
+
+      if (timeDiff > 100) inputBuffer = "";
+
+      if (e.key !== "Enter") {
+        inputBuffer += e.key;
+        lastKeyTime = currentTime;
+      } else {
+        if (inputBuffer.length > 4 && timeDiff < 100) {
+          console.log("Barcode scan detected:", inputBuffer);
+          inputBuffer = "";
+          return;
+        }
+
         e.preventDefault();
         newEntry();
+        inputBuffer = "";
       }
     };
+
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
+
 
   let shelfNo = "";
   if (showSlot < 85) {
