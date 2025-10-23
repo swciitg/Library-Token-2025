@@ -70,6 +70,18 @@ export const allotSlot = async (req, res) => {
         where: { id: existing.slotId },
         data: { isEmpty: true },
       });
+
+      const now = new Date();
+      const formattedDate = now.toISOString().split("T")[0];
+      const formattedTime = now.toTimeString().split(" ")[0];
+      const slotData = {
+        slotId: null,
+        isEmpty: true,
+        time: Date.now(),
+        date: formattedDate,
+        time: formattedTime,
+      };
+      req.emitToUser(rollNo, "slot_info", slotData);
       return res.status(200).json({
         message: "checkout successful",
         checkout_slot: existing.slotId,
@@ -135,13 +147,25 @@ export const createEntry = async (req, res) => {
     // 3) Create entry and mark slot not empty
     const [newEntry, updatedSlot] = await prisma.$transaction([
       prisma.entry.create({
-        data: { roll_no: rollNo, slotId: slotId },
+        data: { roll_no: rollNo, slotId: slotId }, 
       }),
       prisma.slot.update({
         where: { id: slotId },
         data: { isEmpty: false },
       }),
     ]);
+
+    const now = new Date();
+    const formattedDate = now.toISOString().split("T")[0];
+    const formattedTime = now.toTimeString().split(" ")[0];
+    const slotData = {
+      slotId: newEntry.slotId,
+      isEmpty: newEntry.isEmpty,
+      time: Date.now(),
+      date: formattedDate,
+      time: formattedTime,
+    };
+    req.emitToUser(rollNo, "slot_info", slotData);
 
     return res.status(201).json({
       message: "Database changed successfully",
