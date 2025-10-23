@@ -17,7 +17,7 @@ export const Footer = () => {
         className="text-center text-md text-gray-900 mt-1"
         style={{ width: "fit-content" }}
       >
-        @2025 All Rights Reserved
+        ©2025 All Rights Reserved
       </div>
     </div>
   )

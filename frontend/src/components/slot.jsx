@@ -14,16 +14,13 @@ function Shelfs() {
     setShowSlot("");
     setStatus("");
     navigate("/");
-
-
-
-    
   };
+
   const SlotClass = () => {
     if (status === "slot-allot")
-      return "border-green-500 ring-4 ring-green-100";
-    if (status === "checkout") return "border-red-500 ring-4 ring-red-100";
-    return "border-gray-300"; // default class when no status
+      return "border-emerald-500 ring-4 ring-emerald-200";
+    if (status === "checkout") return "border-rose-500 ring-4 ring-rose-200";
+    return "border-gray-300";
   };
 
   useEffect(() => {
@@ -38,53 +35,49 @@ function Shelfs() {
   }, []);
 
   let shelfNo = "";
-  if (showSlot < 85) {
-     shelfNo = "1";
-  } else if (showSlot < 141) {
-    shelfNo = "2";
-  } else if (showSlot < 225) {
-    shelfNo = "3";
-  } else if (showSlot < 315) {
-    shelfNo = "4-A";
-  } else if (showSlot < 405) {
-    shelfNo = "4-B";
-  } else if (showSlot < 495) {
-    shelfNo = "5-A";
-  } else {
-    shelfNo = "5-B";
-  }
+  if (showSlot < 85) shelfNo = "1";
+  else if (showSlot < 141) shelfNo = "2";
+  else if (showSlot < 225) shelfNo = "3";
+  else if (showSlot < 315) shelfNo = "4-A";
+  else if (showSlot < 405) shelfNo = "4-B";
+  else if (showSlot < 495) shelfNo = "5-A";
+  else shelfNo = "5-B";
 
   return (
-    <div className="flex items-center justify-center bg-gray-50">
+    <div className="flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 font-[Inter]">
       <div
-        className={`${SlotClass()} rounded-xl border-4  bg-white shadow-xl p-10 w-96 text-center space-y-4`}
+        className={`${SlotClass()} relative rounded-2xl 
+          bg-[#34c759]
+          border-4 shadow-2xl p-10 w-96 h-[380px] 
+          flex flex-col items-center justify-center 
+          transition-all duration-300`}
       >
-        <div className="flex mb-5">
-        {/* Slot Section */}
-        <div className="w-1/2 flex flex-col items-center text-indigo-700">
-          <span className="text-lg font-medium uppercase tracking-wide text-gray-500 mb-2">
+        {/* Shelf */}
+        <div className="absolute top-6 left-6 text-left">
+          <span className="text-2xl font-semibold tracking-widest text-green-100">
+            Shelf:
+          </span>
+          <span className="ml-2 text-2xl font-bold text-white">
+            {shelfNo || "--"}
+          </span>
+        </div>
+
+        {/* Slot */}
+        <div className="flex mt-[-4rem] flex-col items-center justify-center">
+          <span className="text-3xl tracking-wider text-white mb-2 font-semibold">
             Slot
           </span>
-          <span className="text-6xl font-extrabold text-indigo-600 drop-shadow-sm">
+          <span className="text-8xl font-extrabold text-white drop-shadow-md leading-none">
             {showSlot || "--"}
           </span>
         </div>
 
-        {/* Shelf Section */}
-        <div className="w-1/2 flex flex-col items-center text-emerald-700">
-          <span className="text-lg font-medium uppercase tracking-wide text-gray-500 mb-2">
-            Shelf
-          </span>
-          <span className="text-6xl font-extrabold text-emerald-600 drop-shadow-sm">
-            {shelfNo || "--"}
-          </span>
-        </div></div>
-
+        {/* Done button */}
         <button
           onClick={newEntry}
-          className="mt-5 w-full rounded-md bg-indigo-600 px-4 py-2.5 text-white shadow hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          className="absolute bottom-4 w-[95%] rounded-lg bg-gradient-to-r from-indigo-600 to-indigo-500 px-4 py-3 text-white text-lg font-semibold shadow-md hover:from-indigo-700 hover:to-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-400 transition-all"
         >
-          Done
+          DONE
         </button>
       </div>
     </div>
