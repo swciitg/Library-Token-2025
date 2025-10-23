@@ -1,39 +1,46 @@
 import axios from "axios";
 
+const BASE_URL = process.env.REACT_APP_API_BASE_URL;
+
+const axiosConfig = {
+  timeout: 10000,
+  headers: {
+    "Content-Type": "application/json",
+  },
+};
+
+function handleAxiosError(err) {
+  if (err.response) {
+    return { error: err.response.data?.message || "Server Error!" };
+  } else if (err.request) {
+    return { error: "Network error!" };
+  } else {
+    return { error: err.message || "Unknown error" };
+  }
+}
+
 export async function allotSlot(rollNo) {
   try {
-    const { data } = await axios.post("http://localhost:5001/library/allot", {
-      rollNo,
-    });
+    const { data } = await axios.post(
+      `${BASE_URL}/allot`,
+      { rollNo },
+      axiosConfig
+    );
     return data;
   } catch (err) {
-    console.error(err);
-    if (err.response) {
-      return { error: err.response.data.message || "Server Error!" };
-    } else if (err.request) {
-      return { error: "Network error!" };
-    } else {
-      return { error: err.message };
-    }
+    return handleAxiosError(err);
   }
 }
 
 export async function changeDb(rollNo, slotId, status) {
   try {
-    const { data } = await axios.post("http://localhost:5001/library/change", {
-      rollNo,
-      slotId,
-      status,
-    });
+    const { data } = await axios.post(
+      `${BASE_URL}/change`,
+      { rollNo, slotId, status },
+      axiosConfig
+    );
     return data;
   } catch (err) {
-    console.error(err);
-    if (err.response) {
-      return { error: err.response.data.message || "Server Error!" };
-    } else if (err.request) {
-      return { error: "Network error!" };
-    } else {
-      return { error: err.message };
-    }
+    return handleAxiosError(err);
   }
 }
