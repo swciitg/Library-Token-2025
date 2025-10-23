@@ -4,7 +4,7 @@ const prisma = new PrismaClient();
 
 async function main() {
   const ops = [];
-  for (let i = 1; i <= 1000; i++) {
+  for (let i = 1; i <= 585; i++) {
     ops.push(
       prisma.slot.upsert({
         where: { id: i },
@@ -14,7 +14,7 @@ async function main() {
     );
   }
   await prisma.$transaction(ops);
-  console.log('Seeded slots 1..1000');
+  console.log('Seeded slots 1..585');
 }
 
 main()
