@@ -58,9 +58,9 @@ io.on('connection', (socket) => {
 
 app.use(attachSocketIO(io, userConnections));
 
-app.use("/library", entryRoute);
-app.use("/library", authRoute);
-app.use("/library", getSlotRoutes);
+app.use(entryRoute);
+app.use(authRoute);
+app.use(getSlotRoutes);
 
 app.get("/library/ws-status", (req, res) => {
   res.json({
