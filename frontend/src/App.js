@@ -12,9 +12,10 @@ function App() {
   const [status, setStatus] = useState("");
   console.log(showSlot);
   console.log(status);
+  const base_route = process.env.REACT_APP_API_BASE_ROUTE||'/library';
   return (
     <div className="App">
-      <Router basename='/library'>
+      <Router basename={base_route}>
         <SlotProvider>
           <Routes>
             <Route path="/" element={<InputPage />} />
