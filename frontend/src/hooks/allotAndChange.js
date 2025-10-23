@@ -32,11 +32,11 @@ export async function allotSlot(rollNo) {
   }
 }
 
-export async function changeDb(rollNo, slotId) {
+export async function changeDb(rollNo, slotId, status) {
   try {
     const { data } = await axios.post(
       `${BASE_URL}/change`,
-      { rollNo, slotId },
+      { rollNo, slotId, status },
       axiosConfig
     );
     return data;

@@ -9,20 +9,18 @@ function Shelfs() {
   const { showSlot, status, setShowSlot, setStatus, rollNumber } = useSlot();
 
   const newEntry = async () => {
-    if (status === "slot-allot") await changeDb(rollNumber, showSlot);
     console.log(`${rollNumber} , ${showSlot}`);
+
+    if (status === "slot-allot" || status === "slot-deallot")
+      await changeDb(rollNumber, showSlot, status);
     setShowSlot("");
     setStatus("");
     navigate("/");
-
-
-
-    
   };
   const SlotClass = () => {
     if (status === "slot-allot")
       return "border-green-500 ring-4 ring-green-100";
-    if (status === "checkout") return "border-red-500 ring-4 ring-red-100";
+    if (status === "slot-deallot") return "border-red-500 ring-4 ring-red-100";
     return "border-gray-300"; // default class when no status
   };
 
@@ -59,7 +57,7 @@ function Shelfs() {
 
   let shelfNo = "";
   if (showSlot < 85) {
-     shelfNo = "1";
+    shelfNo = "1";
   } else if (showSlot < 141) {
     shelfNo = "2";
   } else if (showSlot < 225) {
@@ -80,25 +78,26 @@ function Shelfs() {
         className={`${SlotClass()} rounded-xl border-4  bg-white shadow-xl p-10 w-96 text-center space-y-4`}
       >
         <div className="flex mb-5">
-        {/* Slot Section */}
-        <div className="w-1/2 flex flex-col items-center text-indigo-700">
-          <span className="text-lg font-medium uppercase tracking-wide text-gray-500 mb-2">
-            Slot
-          </span>
-          <span className="text-6xl font-extrabold text-indigo-600 drop-shadow-sm">
-            {showSlot || "--"}
-          </span>
-        </div>
+          {/* Slot Section */}
+          <div className="w-1/2 flex flex-col items-center text-indigo-700">
+            <span className="text-lg font-medium uppercase tracking-wide text-gray-500 mb-2">
+              Slot
+            </span>
+            <span className="text-6xl font-extrabold text-indigo-600 drop-shadow-sm">
+              {showSlot || "--"}
+            </span>
+          </div>
 
-        {/* Shelf Section */}
-        <div className="w-1/2 flex flex-col items-center text-emerald-700">
-          <span className="text-lg font-medium uppercase tracking-wide text-gray-500 mb-2">
-            Shelf
-          </span>
-          <span className="text-6xl font-extrabold text-emerald-600 drop-shadow-sm">
-            {shelfNo || "--"}
-          </span>
-        </div></div>
+          {/* Shelf Section */}
+          <div className="w-1/2 flex flex-col items-center text-emerald-700">
+            <span className="text-lg font-medium uppercase tracking-wide text-gray-500 mb-2">
+              Shelf
+            </span>
+            <span className="text-6xl font-extrabold text-emerald-600 drop-shadow-sm">
+              {shelfNo || "--"}
+            </span>
+          </div>
+        </div>
 
         <button
           onClick={newEntry}
