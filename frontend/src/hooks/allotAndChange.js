@@ -26,6 +26,7 @@ export async function allotSlot(rollNo) {
       { rollNo },
       axiosConfig
     );
+    console.log(`${BASE_URL}/allot`);
     return data;
   } catch (err) {
     return handleAxiosError(err);
