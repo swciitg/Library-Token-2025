@@ -2,7 +2,7 @@ import axios from "axios";
 
 export async function allotSlot(rollNo) {
   try {
-    const { data } = await axios.post("http://localhost:5001/api/allot", {
+    const { data } = await axios.post("http://localhost:5001/library/allot", {
       rollNo,
     });
     return data;
@@ -20,7 +20,7 @@ export async function allotSlot(rollNo) {
 
 export async function changeDb(rollNo, slotId, status) {
   try {
-    const { data } = await axios.post("http://localhost:5001/api/change", {
+    const { data } = await axios.post("http://localhost:5001/library/change", {
       rollNo,
       slotId,
       status,
