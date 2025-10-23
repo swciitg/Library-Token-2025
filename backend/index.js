@@ -58,9 +58,10 @@ io.on('connection', (socket) => {
 
 app.use(attachSocketIO(io, userConnections));
 
-app.use(entryRoute);
-app.use(authRoute);
-app.use(getSlotRoutes);
+app.use("/test/library/api", entryRoute);
+app.use("/test/library/api", authRoute);
+app.use("/test/library/api", getSlotRoutes);
+
 
 app.get("/library/ws-status", (req, res) => {
   res.json({
