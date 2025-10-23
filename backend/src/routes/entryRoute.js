@@ -1,6 +1,6 @@
 import express from "express";
 import {
-  addDeleteEntry,
+  // addDeleteEntry,
   allotSlot,
   createEntry,
   //   slotFix,
@@ -9,7 +9,7 @@ import { authenticateToken } from "../middlewares/authMiddleware.js";
 
 const router = express.Router();
 
-router.post("/entry", addDeleteEntry);
+// router.post("/entry", addDeleteEntry);
 router.post("/allot", allotSlot);
 router.post("/change", createEntry);
 // router.post("/fix", slotFix);

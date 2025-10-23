@@ -18,11 +18,12 @@ export async function allotSlot(rollNo) {
   }
 }
 
-export async function changeDb(rollNo, slotId) {
+export async function changeDb(rollNo, slotId, status) {
   try {
     const { data } = await axios.post("http://localhost:5001/api/change", {
       rollNo,
       slotId,
+      status,
     });
     return data;
   } catch (err) {
