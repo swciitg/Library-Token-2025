@@ -14,7 +14,7 @@ function App() {
   console.log(status);
   return (
     <div className="App">
-      <Router>
+      <Router basename='/library'>
         <SlotProvider>
           <Routes>
             <Route path="/" element={<InputPage />} />
