@@ -1,0 +1,20 @@
+version: "3.3"
+
+services:
+  cult_web:
+    image: library_token_frontend
+    container_name: library_token_frontend
+    restart: always
+    build:
+        context: .
+    ports:
+      - "7970:3000"
+    env_file:
+    - .env.test
+    command: sh -c "cd /app && serve -s build"
+    networks:
+      - frontend_default
+
+networks:
+  frontend_default:
+    external: true
