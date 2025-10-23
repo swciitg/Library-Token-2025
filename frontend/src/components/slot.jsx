@@ -1,19 +1,39 @@
-import React, { useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSlot } from "../context/SlotContext.js";
 import "./shelf.css";
 import { changeDb } from "../hooks/allotAndChange.js";
+import Loader from "./Loader.jsx";
 
 function Shelfs() {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
   const { showSlot, status, setShowSlot, setStatus, rollNumber } = useSlot();
 
   const newEntry = async () => {
-    if (status === "slot-allot") await changeDb(rollNumber, showSlot);
-    console.log(`${rollNumber} , ${showSlot}`);
-    setShowSlot("");
-    setStatus("");
-    navigate("/");
+    // Guard against double calls
+    if (loading) return;
+
+    setLoading(true);
+    try {
+      if (status === "slot-allot") {
+        await changeDb(rollNumber, showSlot);
+      }
+
+      console.log(`${rollNumber} , ${showSlot}`);
+
+      // clear context state
+      setShowSlot("");
+      setStatus("");
+
+      // stop loader before navigation to avoid React warnings
+      setLoading(false);
+      navigate("/");
+    } catch (err) {
+      console.error(err);
+      setStatus(err?.message || "Something went wrong");
+      setLoading(false);
+    }
   };
 
   // const SlotClass = () => {
@@ -26,7 +46,8 @@ function Shelfs() {
   const SlotClass = () => {
     if (status === "slot-allot")
       return "border-emerald-500 ring-4 ring-emerald-200 bg-emerald-500";
-    if (status === "checkout") return "border-rose-500 ring-4 ring-rose-200 bg-rose-500";
+    if (status === "checkout")
+      return "border-rose-500 ring-4 ring-rose-200 bg-rose-500";
     return "border-gray-300";
   };
 
@@ -60,7 +81,6 @@ function Shelfs() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
-
   let shelfNo = "";
   if (showSlot < 85) shelfNo = "1";
   else if (showSlot < 141) shelfNo = "2";
@@ -72,6 +92,13 @@ function Shelfs() {
 
   return (
     <div className="flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 font-[Inter]">
+      {/* Loader overlay */}
+      {loading && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+          <Loader />
+        </div>
+      )}
+
       <div
         className={`${SlotClass()} relative rounded-2xl 
           bg-[#34c759]
