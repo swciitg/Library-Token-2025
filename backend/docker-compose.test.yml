@@ -1,0 +1,21 @@
+version: "3.3"
+services:
+  cult_app:
+    container_name: library_token_backend_test
+    image: library_token_backend_test
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    restart: always
+    ports:
+      - "9573:3001"
+    env_file:
+      - .env.test
+    networks:
+      - library-token_backend_test
+
+
+
+networks:
+  library-token_backend_test:
+    external: true

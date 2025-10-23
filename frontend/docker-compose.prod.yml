@@ -2,16 +2,16 @@ version: "3.3"
 
 services:
   cult_web:
-    image: library_token_frontend_test
-    container_name: library_token_frontend_test
+    image: library_token_frontend
+    container_name: library_token_frontend
     restart: always
     build:
         context: .
-        dockerfile: Dockerfile.test
+        dockerfile: Dockerfile.prod
     ports:
-      - "7971:3000"
+      - "7970:3000"
     env_file:
-    - .env.test
+    - .env.prod
     command: sh -c "cd /app && serve -s build"
     networks:
       - frontend_default
