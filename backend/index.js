@@ -1,13 +1,13 @@
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
-import prisma, { connectDatabase,disconnectDatabase } from "./db/config.js";
-import entryRoute from "./routes/entryRoute.js";
-import authRoute from "./routes/authRoute.js";
-import getSlotRoutes from "./routes/getSlotRoutes.js";
+import prisma, { connectDatabase,disconnectDatabase } from "./src/db/config.js";
+import entryRoute from "./src/routes/entryRoute.js"
+import authRoute from "./src/routes/authRoute.js";
+import getSlotRoutes from "./src/routes/getSlotRoutes.js";
 import { createServer } from "http";
 import { Server } from "socket.io";
-import attachSocketIO from "./middlewares/socketMiddleware.js";
+import attachSocketIO from "./src/middlewares/socketMiddleware.js";
 
 dotenv.config();
 const app = express();
