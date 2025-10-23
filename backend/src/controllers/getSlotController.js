@@ -11,18 +11,29 @@ const getSlotByRollNumber = async (req, res) => {
                 slot: true,
             }
         });
+
+
+        const now = new Date();
+        const formattedDate = now.toISOString().split("T")[0];
+        const formattedTime = now.toTimeString().split(" ")[0];
+
+
         if(!entry){
             if(req.isUserConnected(roll_no)){
                 req.emitToUser(roll_no, "no_slot_assigned", {
                     message: "No slot assigned to this roll number",
                 });
             }
-            return res.status(404).json({message: "No entry found for this roll number"});
+            return res.status(200).json({
+          slotId: "",
+          isEmpty: true,
+          time: Date.now(),
+          date: formattedDate,
+          time: formattedTime,
+        });
 
         }
-        const now = new Date();
-        const formattedDate = now.toISOString().split("T")[0];
-        const formattedTime = now.toTimeString().split(" ")[0];
+        
 
         const slotData = {
             slotId: entry.slot.id,
@@ -34,11 +45,11 @@ const getSlotByRollNumber = async (req, res) => {
 
         req.emitToUser(roll_no, "slot_info", slotData);
         return res.status(200).json({
-          slotId: entry.slot.id,
-          isEmpty: entry.slot.isEmpty,
-          time: Date.now(),
-          date: formattedDate,
-          time: formattedTime,
+            slotId: entry.slot.id,
+            isEmpty: entry.slot.isEmpty,
+            time: Date.now(),
+            date: formattedDate,
+            time: formattedTime,
         });
     }
     catch(error) {
