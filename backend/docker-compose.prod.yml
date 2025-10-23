@@ -7,6 +7,8 @@ services:
       context: .
       dockerfile: Dockerfile.prod
     restart: always
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     ports:
       - "9574:3001"
     env_file:
