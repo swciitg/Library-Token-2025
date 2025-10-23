@@ -13,6 +13,7 @@ dotenv.config();
 const app = express();
 const server = createServer(app);
 const io = new Server(server, {
+  path:"/test/library/api",
   cors: {
     origin:"*", methods: ["GET", "POST"], credentials: true
   }
