@@ -20,9 +20,7 @@ const getSlotByRollNumber = async (req, res) => {
 
         if(!entry){
             if(req.isUserConnected(roll_no)){
-                req.emitToUser(roll_no, "no_slot_assigned", {
-                    message: "No slot assigned to this roll number",
-                });
+                req.emitToUser(null, "slot_info", slotData);
             }
             return res.status(200).json({
           slotId: null,
