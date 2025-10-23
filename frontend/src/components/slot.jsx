@@ -16,10 +16,17 @@ function Shelfs() {
     navigate("/");
   };
 
+  // const SlotClass = () => {
+  //   if (status === "slot-allot")
+  //     return "border-emerald-500 ring-4 ring-emerald-200";
+  //   if (status === "checkout") return "border-rose-500 ring-4 ring-rose-200";
+  //   return "border-gray-300";
+  // };
+
   const SlotClass = () => {
     if (status === "slot-allot")
-      return "border-emerald-500 ring-4 ring-emerald-200";
-    if (status === "checkout") return "border-rose-500 ring-4 ring-rose-200";
+      return "border-emerald-500 ring-4 ring-emerald-200 bg-emerald-500";
+    if (status === "checkout") return "border-rose-500 ring-4 ring-rose-200 bg-rose-500";
     return "border-gray-300";
   };
 
@@ -95,7 +102,7 @@ function Shelfs() {
         {/* Done button */}
         <button
           onClick={newEntry}
-          className="absolute bottom-4 w-[95%] rounded-lg bg-gradient-to-r from-indigo-600 to-indigo-500 px-4 py-3 text-white text-lg font-semibold shadow-md hover:from-indigo-700 hover:to-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-400 transition-all"
+          className="absolute bottom-4 w-[95%] rounded-lg bg-white px-4 py-3 text-black text-lg font-semibold shadow-md hover:from-indigo-700 hover:to-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-400 transition-all"
         >
           DONE
         </button>
