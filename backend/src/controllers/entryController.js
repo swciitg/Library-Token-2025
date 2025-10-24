@@ -75,13 +75,19 @@ export const allotSlot = async (req, res) => {
       const formattedDate = now.toISOString().split("T")[0];
       const formattedTime = now.toTimeString().split(" ")[0];
       const slotData = {
-        slotId: null,
-        isEmpty: true,
-        time: Date.now(),
-        date: formattedDate,
-        time: formattedTime,
+        type: "slot_info",
+        data: {
+          slotId: null,
+          isEmpty: true,
+          time: Date.now(),
+          date: formattedDate,
+          time: formattedTime,
+        }
       };
-      req.emitToUser(rollNo, "slot_info", slotData);
+      const ws = req.userConnections.get(rollNo.toString());
+      if (ws && ws.readyState === 1) { // 1 = OPEN
+        ws.send(JSON.stringify(slotData));
+      }
       return res.status(200).json({
         message: "checkout successful",
         checkout_slot: existing.slotId,
@@ -159,13 +165,19 @@ export const createEntry = async (req, res) => {
     const formattedDate = now.toISOString().split("T")[0];
     const formattedTime = now.toTimeString().split(" ")[0];
     const slotData = {
-      slotId: newEntry.slotId,
-      isEmpty: newEntry.isEmpty,
-      time: Date.now(),
-      date: formattedDate,
-      time: formattedTime,
+      type: "slot_info",
+      data: {
+        slotId: newEntry.slotId,
+        isEmpty: newEntry.isEmpty,
+        time: Date.now(),
+        date: formattedDate,
+        time: formattedTime,
+      }
     };
-    req.emitToUser(rollNo, "slot_info", slotData);
+    const ws = req.userConnections.get(rollNo.toString());
+    if (ws && ws.readyState === 1) {
+      ws.send(JSON.stringify(slotData));
+    }
 
     return res.status(201).json({
       message: "Database changed successfully",
