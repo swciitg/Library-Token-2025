@@ -22,19 +22,19 @@ const getSlotByRollNumber = async (req, res) => {
             const ws = req.userConnections.get(roll_no.toString());
             if (ws && ws.readyState === 1) {
                 ws.send(JSON.stringify({
-                    type: "no_slot_assigned",
+                    type: "slot_info",
                     data: {
                         message: "No slot assigned to this roll number"
                     }
                 }));
             }
             return res.status(200).json({
-          slotId: null,
-          isEmpty: true,
-          time: Date.now(),
-          date: formattedDate,
-          time: formattedTime,
-        });
+                slotId: null,
+                isEmpty: true,
+                time: Date.now(),
+                date: formattedDate,
+                time: formattedTime,
+            });
 
         }
         
@@ -64,7 +64,7 @@ const getSlotByRollNumber = async (req, res) => {
     }
     catch(error) {
         console.error(error);
-        const ws = req.userConnections.get(roll_no.toString());
+                const ws = req.userConnections.get(roll_no.toString());
         if (ws && ws.readyState === 1) {
             ws.send(JSON.stringify({
                 type: 'slot_error',
