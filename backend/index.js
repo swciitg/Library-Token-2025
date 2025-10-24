@@ -6,18 +6,12 @@ import entryRoute from "./src/routes/entryRoute.js"
 import authRoute from "./src/routes/authRoute.js";
 import getSlotRoutes from "./src/routes/getSlotRoutes.js";
 import { createServer } from "http";
-import { Server } from "socket.io";
-import attachSocketIO from "./src/middlewares/socketMiddleware.js";
+import { WebSocketServer } from 'ws';
 
 dotenv.config();
 const app = express();
 const server = createServer(app);
-const io = new Server(server, {
-  path: process.env.BASE_ROUTE,
-  cors: {
-    origin:"*", methods: ["GET", "POST"], credentials: true
-  }
-});
+const wss = new WebSocketServer({ server });
 app.use(cors());
 app.use(express.json());
 
@@ -29,35 +23,47 @@ await connectDatabase();
 
 const userConnections = new Map();
 
-io.use((socket, next)=>{
-    const rollno = socket.handshake.query.roll_no;
-    console.log("Socket attempting connection with roll number:", rollno);
-    if(!rollno){
-        return next(new Error("roll number is required"));
+wss.on('connection', (ws, req) => {
+  const url = new URL(req.url, `http://${req.headers.host}`);
+  const rollno = url.searchParams.get('roll_no');
+  
+  if (!rollno) {
+    ws.close(1008, 'roll number is required');
+    return;
+  }
+
+  ws.roll_no = rollno;
+  console.log(`User connected: ${ws.roll_no}`);
+  
+  userConnections.set(rollno.toString(), ws);
+  
+  ws.send(JSON.stringify({
+    type: 'connection_confirmed',
+    data: {
+      roll_no: rollno,
+      timestamp: Date.now()
     }
+  }));
 
-    socket.roll_no = rollno;
-    next();
-})
-
-io.on('connection', (socket) => {
-  console.log(`User connected: ${socket.roll_no} (Socket ID: ${socket.id})`);
-  
-  userConnections.set(socket.roll_no.toString(), socket.id);
-  socket.join(socket.roll_no.toString());
-  
-  socket.emit('connection_confirmed', {
-    roll_no: socket.roll_no,
-    timestamp: Date.now()
+  ws.on('error', (error) => {
+    console.error(`WebSocket error for ${ws.roll_no}:`, error);
   });
   
-  socket.on('disconnect', () => {
-    console.log(`User disconnected: ${socket.roll_no}`);
-    userConnections.delete(socket.roll_no.toString());
+  ws.on('close', () => {
+    console.log(`User disconnected: ${ws.roll_no}`);
+    userConnections.delete(rollno.toString());
   });
 });
 
-app.use(attachSocketIO(io, userConnections));
+const attachWebSocket = (userConnections) => {
+  return (req, res, next) => {
+    req.userConnections = userConnections;
+    next();
+  };
+};
+
+
+app.use(attachWebSocket(userConnections));
 
 app.use(process.env.BASE_ROUTE, entryRoute);
 app.use(process.env.BASE_ROUTE, authRoute);
@@ -73,7 +79,7 @@ app.get("/library/ws-status", (req, res) => {
 });
 
 process.on("SIGINT", async () => {
-  io.close(() => {
+  wss.close(() => {
     console.log("All WebSocket connections closed");
     disconnectDatabase();
   });
@@ -81,7 +87,7 @@ process.on("SIGINT", async () => {
 
 
 process.on("SIGTERM", async () => {
-  io.close(() => {
+  wss.close(() => {
     console.log("All WebSocket connections closed");
     disconnectDatabase();
   });

@@ -19,29 +19,46 @@ const getSlotByRollNumber = async (req, res) => {
 
 
         if(!entry){
+<<<<<<< HEAD
             if(req.isUserConnected(roll_no)){
                 req.emitToUser(null, "slot_info", slotData);
+=======
+            const ws = req.userConnections.get(roll_no.toString());
+            if (ws && ws.readyState === 1) {
+                ws.send(JSON.stringify({
+                    type: "slot_info",
+                    data: {
+                        message: "No slot assigned to this roll number"
+                    }
+                }));
+>>>>>>> 812df8c9e802fb84f6badb47ff43af19ea03459c
             }
             return res.status(200).json({
-          slotId: null,
-          isEmpty: true,
-          time: Date.now(),
-          date: formattedDate,
-          time: formattedTime,
-        });
+                slotId: null,
+                isEmpty: true,
+                time: Date.now(),
+                date: formattedDate,
+                time: formattedTime,
+            });
 
         }
         
 
         const slotData = {
-            slotId: entry.slot.id,
-            isEmpty: entry.slot.isEmpty,
-            time: Date.now(),
-            date: formattedDate,
-            time: formattedTime,
-        }
+            type: "slot_info",
+            data: {
+                slotId: entry.slot.id,
+                isEmpty: entry.slot.isEmpty,
+                time: Date.now(),
+                date: formattedDate,
+                timeString: formattedTime,
+            }
+        };
 
-        req.emitToUser(roll_no, "slot_info", slotData);
+        const ws = req.userConnections.get(roll_no.toString());
+        if (ws && ws.readyState === 1) {
+            ws.send(JSON.stringify(slotData));
+        }
         return res.status(200).json({
             slotId: entry.slot.id,
             isEmpty: entry.slot.isEmpty,
@@ -52,10 +69,14 @@ const getSlotByRollNumber = async (req, res) => {
     }
     catch(error) {
         console.error(error);
-        if (req.isUserConnected(roll_no)) {
-            req.emitToUser(roll_no, 'slot_error', {
-                message: "An error occurred while fetching the data"
-            });
+                const ws = req.userConnections.get(roll_no.toString());
+        if (ws && ws.readyState === 1) {
+            ws.send(JSON.stringify({
+                type: 'slot_error',
+                data: {
+                    message: "An error occurred while fetching the data"
+                }
+            }));
         }
         return res.status(500).json({message: "An error occured while fetching the data"});
     }
