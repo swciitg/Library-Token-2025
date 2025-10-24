@@ -50,6 +50,11 @@ export default function RollEntry() {
     e.preventDefault();
     setStatus("Processing...");
     setSlotInfo("");
+    if (!/^\d{9}$/.test(rollNo)) {
+      setStatus("Roll number must be exactly 9 digits");
+      setRollNo("");
+      return;
+    }
 
     const data = await allotSlot(rollNo);
 
@@ -94,16 +99,25 @@ export default function RollEntry() {
           <img src={QRscan} alt="QR Code" className="w-64 h-64" />
           <input
             id="roll"
-            type="number"
+            type="text"
             value={rollNo}
-            onChange={(e) => setRollNo(e.target.value)}
+            onChange={(e) => {
+              const value = e.target.value.trim();
+              const regex = /^\d{0,9}$/;
+              if (regex.test(value)) {
+                setRollNo(value);
+              } else {
+                setRollNo("");
+                e.target.value = "";
+              }
+            }}
             placeholder="Enter your roll number"
             autoFocus
-            className="border border-gray-300 rounded-md px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 sr-only"
+            className="border border-gray-300 rounded-md px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           <button
             type="submit"
-            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-md w-full transition sr-only"
+            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-md w-full transition"
           >
             Get Slot
           </button>
