@@ -50,6 +50,11 @@ export default function RollEntry() {
     e.preventDefault();
     setStatus("Processing...");
     setSlotInfo("");
+    if (!/^\d{9}$/.test(rollNo)) {
+      setStatus("Roll number must be exactly 9 digits");
+      setRollNo("");
+      return;
+    }
 
     const data = await allotSlot(rollNo);
 
@@ -83,20 +88,31 @@ export default function RollEntry() {
 
   return (
     <>
-      <div className="flex flex-col items-center justify-center min-h-[60vh]">
+      <div className="flex flex-col items-center justify-center  min-h-[60vh]">
         <form
           onSubmit={handleSubmit}
-          className="flex flex-col items-center bg-white p-8 rounded-lg shadow-lg space-y-6 w-80"
+          className="flex flex-col items-center bg-white p-8 rounded-lg shadow-lg space-y-6 w-[500px]"
         >
           <label htmlFor="roll" className="text-lg font-semibold">
             Scan the QR code
           </label>
+          <label htmlFor="roll" className="text-lg font-semibold">QR कोड को स्कैन करें
+          </label>
           <img src={QRscan} alt="QR Code" className="w-64 h-64" />
           <input
             id="roll"
-            type="number"
+            type="text"
             value={rollNo}
-            onChange={(e) => setRollNo(e.target.value)}
+            onChange={(e) => {
+              const value = e.target.value.trim();
+              const regex = /^\d{0,9}$/;
+              if (regex.test(value)) {
+                setRollNo(value);
+              } else {
+                setRollNo("");
+                e.target.value = "";
+              }
+            }}
             placeholder="Enter your roll number"
             autoFocus
             className="border border-gray-300 rounded-md px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 sr-only"
