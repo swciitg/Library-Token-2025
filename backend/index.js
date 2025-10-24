@@ -37,13 +37,13 @@ wss.on('connection', (ws, req) => {
   
   userConnections.set(rollno.toString(), ws);
   
-  ws.send(JSON.stringify({
-    type: 'connection_confirmed',
-    data: {
-      roll_no: rollno,
-      timestamp: Date.now()
-    }
-  }));
+  // ws.send(JSON.stringify({
+  //   type: 'connection_confirmed',
+  //   data: {
+  //     roll_no: rollno,
+  //     timestamp: Date.now()
+  //   }
+  // }));
 
   ws.on('error', (error) => {
     console.error(`WebSocket error for ${ws.roll_no}:`, error);
