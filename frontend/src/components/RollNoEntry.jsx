@@ -88,13 +88,15 @@ export default function RollEntry() {
 
   return (
     <>
-      <div className="flex flex-col items-center justify-center min-h-[60vh]">
+      <div className="flex flex-col items-center justify-center  min-h-[60vh]">
         <form
           onSubmit={handleSubmit}
-          className="flex flex-col items-center bg-white p-8 rounded-lg shadow-lg space-y-6 w-80"
+          className="flex flex-col items-center bg-white p-8 rounded-lg shadow-lg space-y-6 w-[500px]"
         >
           <label htmlFor="roll" className="text-lg font-semibold">
             Scan the QR code
+          </label>
+          <label htmlFor="roll" className="text-lg font-semibold">QR कोड को स्कैन करें
           </label>
           <img src={QRscan} alt="QR Code" className="w-64 h-64" />
           <input
