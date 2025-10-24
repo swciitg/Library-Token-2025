@@ -115,11 +115,11 @@ export default function RollEntry() {
             }}
             placeholder="Enter your roll number"
             autoFocus
-            className="border border-gray-300 rounded-md px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="border border-gray-300 rounded-md px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 sr-only"
           />
           <button
             type="submit"
-            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-md w-full transition"
+            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-md w-full transition sr-only"
           >
             Get Slot
           </button>
