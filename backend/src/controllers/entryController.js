@@ -52,60 +52,102 @@ export const addDeleteEntry = async (req, res) => {
   }
 };
 
-export const allotSlot = async (req, res) => {
-  const data = req.body;
-  console.log(data);
+// Helper function to notify user via WebSocket
+const notifyUserViaWebSocket = (req, rollNo, slotId, isEmpty) => {
+  const now = new Date();
+  const formattedDate = now.toISOString().split("T")[0];
+  const formattedTime = now.toTimeString().split(" ")[0];
+  
+  const slotData = {
+    type: "slot_info",
+    data: {
+      slotId,
+      isEmpty,
+      time: Date.now(),
+      date: formattedDate,
+      timeString: formattedTime
+    }
+  };
 
-  const rollNo = parseInt(data.rollNo, 10);
-  console.log(rollNo);
+  const ws = req.userConnections.get(rollNo.toString());
+  if (ws && ws.readyState === 1) {
+    ws.send(JSON.stringify(slotData));
+  }
+};
+
+// Function to delete an entry and update slot status
+export const deleteEntry = async (req, res) => {
+  const { rollNo } = req.body;
+  console.log("Deleting entry for roll number:", rollNo);
 
   try {
     const existing = await prisma.entry.findUnique({
-      where: { roll_no: rollNo },
+      where: { roll_no: parseInt(rollNo, 10) },
     });
-    if (existing) {
-      // retrive
-      await prisma.entry.delete({ where: { roll_no: rollNo } });
-      await prisma.slot.update({
-        where: { id: existing.slotId },
-        data: { isEmpty: true },
-      });
 
-      const now = new Date();
-      const formattedDate = now.toISOString().split("T")[0];
-      const formattedTime = now.toTimeString().split(" ")[0];
-      const slotData = {
-        type: "slot_info",
-        data: {
-          slotId: null,
-          isEmpty: true,
-          time: Date.now(),
-          date: formattedDate,
-          time: formattedTime,
-        }
-      };
-      const ws = req.userConnections.get(rollNo.toString());
-      if (ws && ws.readyState === 1) { // 1 = OPEN
-        ws.send(JSON.stringify(slotData));
-      }
-      return res.status(200).json({
-        message: "checkout successful",
-        checkout_slot: existing.slotId,
-        status: "checkout",
-      });
-    } else {
-      //entry
-      const emptySlot = await findFirstEmptySlot();
-      if (!emptySlot) {
-        return res.status(400).json({ message: "no empty slot is available" });
-      }
-      console.log(emptySlot.id);
-      return res.status(200).json({
-        message: "Slot allotment successfull",
-        checkin_slot: emptySlot.id,
-        status: "slot-allot",
+    if (!existing) {
+      return res.status(404).json({
+        message: "No entry found for this roll number",
+        status: "not-found"
       });
     }
+
+    // Delete entry and update slot in a transaction
+    await prisma.$transaction([
+      prisma.entry.delete({ where: { roll_no: parseInt(rollNo, 10) } }),
+      prisma.slot.update({
+        where: { id: existing.slotId },
+        data: { isEmpty: true },
+      })
+    ]);
+
+    // Notify user via WebSocket
+    notifyUserViaWebSocket(req, parseInt(rollNo, 10), null, true);
+
+    return res.status(200).json({
+      message: "checkout successful",
+      checkout_slot: existing.slotId,
+      status: "checkout"
+    });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// Function to find and allot an empty slot
+export const allotSlot = async (req, res) => {
+  const { rollNo } = req.body;
+  console.log("Finding slot for roll number:", rollNo);
+
+  try {
+    const existing = await prisma.entry.findUnique({
+      where: { roll_no: parseInt(rollNo, 10) },
+    });
+
+    if (existing) {
+      return res.status(400).json({
+        message: "User already has a slot assigned",
+        current_slot: existing.slotId,
+        status: "already-assigned"
+      });
+    }
+
+    const emptySlot = await findFirstEmptySlot();
+    if (!emptySlot) {
+      return res.status(400).json({
+        message: "no empty slot is available",
+        status: "no-slots"
+      });
+    }
+
+    console.log("Found empty slot:", emptySlot.id);
+    return res.status(200).json({
+      message: "Slot allotment successful",
+      checkin_slot: emptySlot.id,
+      status: "slot-allot"
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: err.message });
