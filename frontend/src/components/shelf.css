@@ -108,3 +108,24 @@
 .slot {
   scroll-margin-block: 40px; /* gives some space when centered */
 }
+
+.slot.empty {
+  background-color: white;
+  color: black;
+  border: 1px solid #ccc;
+}
+
+.slot.occupied {
+  background-color: #a9a9a9; /* gray */
+  color: white;
+}
+
+.slot.highlight.checkin {
+  background-color: #00bcd4; /* teal for check-in */
+  color: white;
+}
+
+.slot.highlight.checkout {
+  background-color: #555; /* dark gray for checkout */
+  color: white;
+}

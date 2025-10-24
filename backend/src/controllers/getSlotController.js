@@ -79,13 +79,25 @@ const getSlotByRollNumber = async (req, res) => {
 
 const getAllSlot = async (req, res) => {
   try {
-    const slots = await prisma.slot.findMany();
-    console.log(slots);
+    const slots = await prisma.slot.findMany({
+      where: {
+        id: {
+          lt: 585,
+        },
+      },
+      include: {
+        entry: false,
+      },
+      orderBy: {
+        id: "asc",
+      },
+    });
+
     return res.status(200).json(slots);
   } catch (error) {
     console.error(error);
     return res.status(500).json({
-      message: "An error occured while feeding the slot data",
+      message: "An error occurred while fetching the slot data",
     });
   }
 };

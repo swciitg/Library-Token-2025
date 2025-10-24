@@ -45,3 +45,12 @@ export async function changeDb(rollNo, slotId) {
     return handleAxiosError(err);
   }
 }
+
+export async function allSlot() {
+  try {
+    const { data } = await axios.get(`${BASE_URL}/all-slot`, axiosConfig);
+    return data;
+  } catch (err) {
+    return handleAxiosError(err);
+  }
+}
