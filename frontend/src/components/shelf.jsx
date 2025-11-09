@@ -1,12 +1,15 @@
-import React, { useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import "./shelf.css";
 import { Header } from "../components/Header";
 import { Footer } from "../components/Footer";
 import { useNavigate } from "react-router-dom";
 import { useSlot } from "../context/SlotContext.js";
+import { allSlot } from "../hooks/allotAndChange.js";
 
 function Shelfs() {
   const navigate = useNavigate();
+  const [slots, setSlots] = useState([]);
+  const [error, setError] = useState("");
   const { showSlot, status, setShowSlot, setStatus } = useSlot();
 
   // 🔹 Shelf structure (kept as is)
@@ -24,16 +27,51 @@ function Shelfs() {
     },
   };
 
+  useEffect(() => {
+    const fetchSlots = async () => {
+      try {
+        const data = await allSlot();
 
-  
+        if (!Array.isArray(data)) {
+          throw new Error("Invalid slot data format");
+        }
+        setSlots(data);
+      } catch (err) {
+        setError(err.message || "Failed to fetch slots");
+      }
+    };
+
+    fetchSlots();
+  }, []);
+
+  const slotById = useMemo(() => {
+    const m = new Map();
+    slots.forEach((s) => {
+      if (s && typeof s.id !== "undefined") m.set(Number(s.id), s);
+    });
+    return m;
+  }, [slots]);
+
   // 🔹 Function to determine slot color
   const getSlotClass = (slotNumber) => {
     if (Number(showSlot) === Number(slotNumber)) {
-      if (status === "slot-allot") return "slot highlight checkin";   // white
-      if (status === "checkout") return "slot highlight checkout"; // gray
+      if (status === "slot-allot") return "slot highlight checkin"; // white
+      if (status === "checkout") return "slot highlight checkout"; // red
     }
     return "slot";
   };
+
+  const isSlotEmpty = (slotNumber) => {
+    const n = Number(slotNumber);
+    const slotData = slotById.get(n);
+
+    if (!slotData) {
+      return "unknown";
+    }
+
+    return slotData.isEmpty ? "empty" : "occupied";
+  };
+
   // 🔹 Render each shelf’s slots
   const renderSlots = (slotsArray, shelfNumber) => {
     if (shelfNumber === 1 || shelfNumber === "4A" || shelfNumber === "5A") {
@@ -42,7 +80,7 @@ function Shelfs() {
     return slotsArray.map((n) => (
       <div
         key={n}
-        className={getSlotClass(n)}
+        className={`${getSlotClass(n)} ${isSlotEmpty(n)}`}
         data-slot={n}
         id={`slot-${n}`}
       >
@@ -88,56 +126,56 @@ function Shelfs() {
   // 🔹 Render shelves only (no top token box)
   return (
     <>
-    <Header />
-    <div className="layout pt-36 pr-80 px-4">
-      <div className="wall">
-        <div className="shelf block">
-          <div className="label">Shelf 2 (85-140)</div>
-          <div className="slots wide">{renderSlots(shelfStructure[2])}</div>
-        </div>
-      </div>
-
-      <div className="aisle">
-        <div className="shelf block">
-          <div className="label sticky">Shelf 1 (1-84)</div>
-          <div className="slots">{renderSlots(shelfStructure[1], 1)}</div>
-        </div>
-
-        <div className="pair">
+      <Header />
+      <div className="layout pt-36 pr-80 px-4">
+        <div className="wall">
           <div className="shelf block">
-            <div className="label sticky">Shelf 5-B (495-585)</div>
-            <div className="slots">{renderSlots(shelfStructure[5].B)}</div>
+            <div className="label">Shelf 2 (85-140)</div>
+            <div className="slots wide">{renderSlots(shelfStructure[2])}</div>
           </div>
+        </div>
+
+        <div className="aisle">
           <div className="shelf block">
-            <div className="label sticky">Shelf 5-A (405-494)</div>
-            <div className="slots">
-              {renderSlots(shelfStructure[5].A, "5A")}
+            <div className="label sticky">Shelf 1 (1-84)</div>
+            <div className="slots">{renderSlots(shelfStructure[1], 1)}</div>
+          </div>
+
+          <div className="pair">
+            <div className="shelf block">
+              <div className="label sticky">Shelf 5-B (495-585)</div>
+              <div className="slots">{renderSlots(shelfStructure[5].B)}</div>
+            </div>
+            <div className="shelf block">
+              <div className="label sticky">Shelf 5-A (405-494)</div>
+              <div className="slots">
+                {renderSlots(shelfStructure[5].A, "5A")}
+              </div>
             </div>
           </div>
-        </div>
 
-        <div className="pair">
-          <div className="shelf block">
-            <div className="label sticky">Shelf 4-B (315-404)</div>
-            <div className="slots">{renderSlots(shelfStructure[4].B)}</div>
-          </div>
-          <div className="shelf block">
-            <div className="label sticky">Shelf 4-A (225-314)</div>
-            <div className="slots">
-              {renderSlots(shelfStructure[4].A, "4A")}
+          <div className="pair">
+            <div className="shelf block">
+              <div className="label sticky">Shelf 4-B (315-404)</div>
+              <div className="slots">{renderSlots(shelfStructure[4].B)}</div>
+            </div>
+            <div className="shelf block">
+              <div className="label sticky">Shelf 4-A (225-314)</div>
+              <div className="slots">
+                {renderSlots(shelfStructure[4].A, "4A")}
+              </div>
             </div>
           </div>
+
+          <div className="shelf block">
+            <div className="label sticky">Shelf 3 (141-224)</div>
+            <div className="slots">{renderSlots(shelfStructure[3])}</div>
+          </div>
         </div>
 
-        <div className="shelf block">
-          <div className="label sticky">Shelf 3 (141-224)</div>
-          <div className="slots">{renderSlots(shelfStructure[3])}</div>
-        </div>
+        <div className="entry">Entry</div>
       </div>
-
-      <div className="entry">Entry</div>
-    </div>
-    <Footer />
+      <Footer />
     </>
   );
 }

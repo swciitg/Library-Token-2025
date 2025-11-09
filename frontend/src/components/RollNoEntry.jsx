@@ -3,86 +3,73 @@ import { getSlotId } from "../hooks/getSlotId";
 import { allotSlot } from "../hooks/allotAndChange.js";
 import { useNavigate } from "react-router-dom";
 import { useSlot } from "../context/SlotContext.js";
+import Loader from "./Loader.jsx";
 import QRscan from "../images/QR-scan.png";
 
 export default function RollEntry() {
   const [rollNo, setRollNo] = useState("");
   const [slotInfo, setSlotInfo] = useState("");
+  const [loading, setLoading] = useState(false);
   const { setShowSlot, setStatus, setRollNumber } = useSlot();
   const navigate = useNavigate();
 
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-  //   setStatus("Processing...");
-  //   setSlotInfo("");
-
-  //   const data = await getSlotId(rollNo);
-
-  //   if (data.error) {
-  //     setStatus(data.error);
-  //     setSlotInfo("");
-  //     setShowSlot("");
-  //     return;
-  //   }
-
-  //   setStatus(data.message);
-
-  //   if (data.checkin_slot) {
-  //     setSlotInfo(`Slot allotted: ${data.checkin_slot}`);
-  //     setShowSlot(data.checkin_slot);
-  //     setStatus(data.status);
-  //     setRollNo("");
-  //   } else if (data.checkout_slot) {
-  //     setSlotInfo(`Slot released: ${data.checkout_slot}`);
-  //     setShowSlot(data.checkout_slot);
-  //     setRollNo("");
-  //     setStatus(data.status);
-  //   } else {
-  //     setSlotInfo("");
-  //     setShowSlot("");
-  //   }
-  //   setRollNumber(rollNo);
-
-  //   navigate("/slot");
-  // };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const submittedRoll = rollNo;
     setStatus("Processing...");
     setSlotInfo("");
+    setLoading(true);
 
-    const data = await allotSlot(rollNo);
+    try {
+      const data = await allotSlot(submittedRoll);
 
-    if (data.error) {
-      setStatus(data.error);
+      if (data.error) {
+        setStatus(data.error);
+        setSlotInfo("");
+        setShowSlot("");
+        setLoading(false);
+        return;
+      }
+
+      setStatus(data.message);
+
+      if (data.checkin_slot) {
+        setSlotInfo(`Slot allotted: ${data.checkin_slot}`);
+        setShowSlot(data.checkin_slot);
+        setStatus(data.status);
+        setRollNo("");
+      } else if (data.checkout_slot) {
+        setSlotInfo(`Slot released: ${data.checkout_slot}`);
+        setShowSlot(data.checkout_slot);
+        setRollNo("");
+        setStatus(data.status);
+      } else {
+        setSlotInfo("");
+        setShowSlot("");
+      }
+
+      setRollNumber(submittedRoll);
+
+      setLoading(false);
+      navigate("/slot");
+    } catch (err) {
+      console.error(err);
+      setStatus(err?.message || "Network error!");
       setSlotInfo("");
       setShowSlot("");
-      return;
+      setLoading(false);
     }
-
-    setStatus(data.message);
-
-    if (data.checkin_slot) {
-      setSlotInfo(`Slot allotted: ${data.checkin_slot}`);
-      setShowSlot(data.checkin_slot);
-      setStatus(data.status);
-      setRollNo("");
-    } else if (data.checkout_slot) {
-      setSlotInfo(`Slot released: ${data.checkout_slot}`);
-      setShowSlot(data.checkout_slot);
-      setRollNo("");
-      setStatus(data.status);
-    } else {
-      setSlotInfo("");
-      setShowSlot("");
-    }
-    setRollNumber(rollNo);
-
-    navigate("/slot", { state: data });
   };
 
   return (
     <>
+      {/* Full-screen overlay loader */}
+      {loading && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <Loader />
+        </div>
+      )}
+
       <div className="flex flex-col items-center justify-center min-h-[60vh]">
         <form
           onSubmit={handleSubmit}
