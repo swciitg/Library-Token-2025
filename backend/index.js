@@ -1,10 +1,14 @@
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
-import prisma, { connectDatabase,disconnectDatabase } from "./src/db/config.js";
-import entryRoute from "./src/routes/entryRoute.js"
+import prisma, {
+  connectDatabase,
+  disconnectDatabase,
+} from "./src/db/config.js";
+import entryRoute from "./src/routes/entryRoute.js";
 import authRoute from "./src/routes/authRoute.js";
 import getSlotRoutes from "./src/routes/getSlotRoutes.js";
+import tokenRoute from "./src/routes/tokenRoute.js";
 import { createServer } from "http";
 import { WebSocketServer } from 'ws';
 
@@ -15,9 +19,8 @@ const wss = new WebSocketServer({ server });
 app.use(cors());
 app.use(express.json());
 
-
-app.get("/", (req, res) =>{
-    res.send("hi");
+app.get("/", (req, res) => {
+  res.send("hi");
 });
 await connectDatabase();
 
@@ -68,13 +71,13 @@ app.use(attachWebSocket(userConnections));
 app.use("/test/library/api", entryRoute);
 app.use("/test/library/api", authRoute);
 app.use("/test/library/api", getSlotRoutes);
-
+app.use("/test/library/api", tokenRoute);
 
 app.get("/library/ws-status", (req, res) => {
   res.json({
     status: "active",
     connectedUsers: req.userConnections.size,
-    timestamp: Date.now()
+    timestamp: Date.now(),
   });
 });
 
@@ -85,7 +88,6 @@ process.on("SIGINT", async () => {
   });
 });
 
-
 process.on("SIGTERM", async () => {
   wss.close(() => {
     console.log("All WebSocket connections closed");
@@ -93,7 +95,6 @@ process.on("SIGTERM", async () => {
   });
 });
 
-
-server.listen(process.env.PORT, ()=>{
-    console.log(`server listening on port ${process.env.PORT}`)
+server.listen(process.env.PORT, () => {
+  console.log(`server listening on port ${process.env.PORT}`);
 });
