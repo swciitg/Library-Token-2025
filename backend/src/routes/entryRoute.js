@@ -6,12 +6,13 @@ import {
   //   slotFix,
 } from "../controllers/entryController.js";
 import { authenticateToken } from "../middlewares/authMiddleware.js";
+import { verifyTokenMiddleware } from "../middlewares/tokenMiddleware.js"
 
 const router = express.Router();
 
-router.post("/entry", addDeleteEntry);
-router.post("/allot", allotSlot);
-router.post("/change", createEntry);
+router.post("/entry", verifyTokenMiddleware, addDeleteEntry);
+router.post("/allot", verifyTokenMiddleware, allotSlot);
+router.post("/change", verifyTokenMiddleware, createEntry);
 // router.post("/fix", slotFix);
 
 export default router;

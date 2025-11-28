@@ -38,39 +38,39 @@ export const storeToken = async (req, res) => {
   }
 };
 
-// Verify Token
-export const verifyToken = async (req, res) => {
-  try {
-    const { token } = req.body;
+// Verify Token - no longer needed as middleware is used
+// export const verifyToken = async (req, res) => {
+//   try {
+//     const { token } = req.body;
 
-    if (!token) {
-      return res.status(400).json({
-        success: false,
-        message: "Token is required",
-      });
-    }
+//     if (!token) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "Token is required",
+//       });
+//     }
 
-    const roll_number = await redisClient.get(token);
+//     const roll_number = await redisClient.get(token);
 
-    if (!roll_number) {
-      return res.status(401).json({
-        success: false,
-        message: "Token is invalid or has expired",
-        roll_number: null,
-      });
-    }
+//     if (!roll_number) {
+//       return res.status(401).json({
+//         success: false,
+//         message: "Token is invalid or has expired",
+//         roll_number: null,
+//       });
+//     }
 
-    res.status(200).json({
-      success: true,
-      message: "Token verified successfully",
-      roll_number,
-    });
-  } catch (error) {
-    console.error("Error verifying token:", error);
-    res.status(500).json({
-      success: false,
-      message: "Failed to verify token",
-      error: error.message,
-    });
-  }
-};
+//     res.status(200).json({
+//       success: true,
+//       message: "Token verified successfully",
+//       roll_number,
+//     });
+//   } catch (error) {
+//     console.error("Error verifying token:", error);
+//     res.status(500).json({
+//       success: false,
+//       message: "Failed to verify token",
+//       error: error.message,
+//     });
+//   }
+// };
