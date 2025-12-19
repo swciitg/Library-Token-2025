@@ -31,7 +31,7 @@ export const addDeleteEntry = async (req, res, next) => {
     } else {
       //entry
       const emptySlot = await findFirstEmptySlot();
-      if (!emptySlot) {
+      if (emptySlot<0) {
         throw new BadRequestError("No empty slot is available");
       }
       const newEntry = await prisma.entry.create({
@@ -104,7 +104,7 @@ export const allotSlot = async (req, res, next) => {
     } else {
       //entry
       const emptySlot = await findFirstEmptySlot();
-      if (!emptySlot) {
+      if (emptySlot<0) {
         throw new BadRequestError("No empty slot is available");
       }
       console.log(emptySlot.id);
