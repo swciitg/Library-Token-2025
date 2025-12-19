@@ -1,7 +1,11 @@
 import prisma from "../db/config.js";
 import findFirstEmptySlot from "../utils/findEmpty.js";
+import { BadRequestError } from "../errors/BadRequestError.js";
+import { ValidationError } from "../errors/ValidationError.js";
+import { NotFoundError } from "../errors/NotFoundError.js";
+import { DatabaseError } from "../errors/DatabaseError.js";
 
-export const addDeleteEntry = async (req, res) => {
+export const addDeleteEntry = async (req, res, next) => {
   const data = req.body;
   console.log(data);
 
@@ -28,7 +32,7 @@ export const addDeleteEntry = async (req, res) => {
       //entry
       const emptySlot = await findFirstEmptySlot();
       if (!emptySlot) {
-        return res.status(400).json({ message: "no empty slot is available" });
+        throw new BadRequestError("No empty slot is available");
       }
       const newEntry = await prisma.entry.create({
         data: { roll_no: rollNo, slotId: emptySlot.id },
@@ -48,11 +52,15 @@ export const addDeleteEntry = async (req, res) => {
     }
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: err.message });
+    return next(
+      err instanceof BadRequestError
+        ? err
+        : new DatabaseError("Failed to add/delete entry")
+    );
   }
 };
 
-export const allotSlot = async (req, res) => {
+export const allotSlot = async (req, res, next) => {
   const data = req.body;
   console.log(data);
 
@@ -97,7 +105,7 @@ export const allotSlot = async (req, res) => {
       //entry
       const emptySlot = await findFirstEmptySlot();
       if (!emptySlot) {
-        return res.status(400).json({ message: "no empty slot is available" });
+        throw new BadRequestError("No empty slot is available");
       }
       console.log(emptySlot.id);
       return res.status(200).json({
@@ -108,11 +116,15 @@ export const allotSlot = async (req, res) => {
     }
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: err.message });
+    return next(
+      err instanceof BadRequestError
+        ? err
+        : new DatabaseError("Failed to allot slot")
+    );
   }
 };
 
-export const createEntry = async (req, res) => {
+export const createEntry = async (req, res, next) => {
   const data = req.body;
   console.log(data);
 
@@ -123,7 +135,7 @@ export const createEntry = async (req, res) => {
   console.log(slotId);
 
   if (Number.isNaN(rollNo) || Number.isNaN(slotId)) {
-    return res.status(400).json({ message: "Invalid rollNo or slotId" });
+    return next(new ValidationError("Invalid rollNo or slotId"));
   }
 
   try {
@@ -142,12 +154,10 @@ export const createEntry = async (req, res) => {
     // 2) Check slot existence and emptiness
     const slot = await prisma.slot.findUnique({ where: { id: slotId } });
     if (!slot) {
-      return res.status(404).json({ message: "Slot not found" });
+      throw new NotFoundError("Slot not found");
     }
     if (!slot.isEmpty) {
-      return res
-        .status(400)
-        .json({ message: "Slot is not empty / already taken" });
+      throw new BadRequestError("Slot is not empty / already taken");
     }
 
     // 3) Create entry and mark slot not empty
@@ -191,7 +201,14 @@ export const createEntry = async (req, res) => {
     });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: err.message });
+    if (
+      err instanceof BadRequestError ||
+      err instanceof ValidationError ||
+      err instanceof NotFoundError
+    ) {
+      return next(err);
+    }
+    return next(new DatabaseError("Failed to create entry"));
   }
 };
 

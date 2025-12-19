@@ -8,6 +8,7 @@ import prisma, {
 import entryRoute from "./src/routes/entryRoute.js";
 import authRoute from "./src/routes/authRoute.js";
 import getSlotRoutes from "./src/routes/getSlotRoutes.js";
+import { errorHandler } from "./src/middlewares/error.handler.js";
 import tokenRoute from "./src/routes/tokenRoute.js";
 import { createServer } from "http";
 import { WebSocketServer } from 'ws';
@@ -18,6 +19,7 @@ const server = createServer(app);
 const wss = new WebSocketServer({ server });
 app.use(cors());
 app.use(express.json());
+
 
 app.get("/", (req, res) => {
   res.send("hi");
@@ -72,7 +74,6 @@ app.use("/test/library/api", entryRoute);
 app.use("/test/library/api", authRoute);
 app.use("/test/library/api", getSlotRoutes);
 app.use("/test/library/api", tokenRoute);
-
 app.get("/library/ws-status", (req, res) => {
   res.json({
     status: "active",
@@ -80,6 +81,7 @@ app.get("/library/ws-status", (req, res) => {
     timestamp: Date.now(),
   });
 });
+app.use(errorHandler);
 
 process.on("SIGINT", async () => {
   wss.close(() => {

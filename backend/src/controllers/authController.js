@@ -1,28 +1,29 @@
 import { registerUser, loginUser } from "../utils/authService.js";
+import { AuthenticationError } from "../errors/AuthenticationError.js";
 
 // Register a new user
-const register = async (req, res) => {
+const register = async (req, res, next) => {
   try {
     const user = await registerUser(req.body);
-    res.status(201).json(user);
+    return res.status(201).json(user);
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    return next(error);
   }
 };
 
 // Login user and generate a JWT token
-const login = async (req, res) => {
+const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
     const result = await loginUser(email, password);
 
     if (result.token) {
-      res.json(result);
-    } else {
-      res.status(401).json({ message: "Invalid credentials" });
+      return res.json(result);
     }
+    
+    throw new AuthenticationError("Invalid credentials");
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    return next(error);
   }
 };
 
