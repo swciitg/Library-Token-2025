@@ -24,6 +24,9 @@ export default function RollEntry() {
 
   const { setShowSlot, setStatus, setRollNumber } = useSlot();
   const navigate = useNavigate();
+  
+  const INVALID_QR_COOLDOWN = 2000; // 2 seconds
+  const lastInvalidScanTime = useRef(0);
 
   /* Always focus input on mount */
   useEffect(() => {
@@ -41,20 +44,29 @@ export default function RollEntry() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Prevent multiple submissions(Rapid scans of QR)
     if (processing) return;
 
     setProcessing(true);
     setStatus("Processing...");
     setSlotInfo("");
-
-    /* Invalid QR */
+    
+    /* Invalid QR or Invalid Roll Number */
     if (!/^\d{9}$/.test(rollNo)) {
+      const now = Date.now();
+
+      // Prevent toast spamming on rapid invalid scans
+      if (now - lastInvalidScanTime.current > INVALID_QR_COOLDOWN)
       showErrorToast("Invalid QR. Roll Number must be 9 digits", scannerErrorActive.current);
+      lastInvalidScanTime.current = now;
+
       setRollNo("");
       setProcessing(false);
       return;
     }
 
+    // Show slow processing toast if backend is slow
     const slowTimer = setTimeout(() => {
       showErrorToast(
         "System is slow. Please wait.",
