@@ -1,24 +1,20 @@
 import redisClient from "../utils/redisClient.js";
+import { ValidationError } from "../errors/ValidationError.js";
+import { TokenError } from "../errors/TokenError.js";
+import { RedisError } from "../errors/RedisError.js";
 
 export const verifyTokenMiddleware = async (req, res, next) => {
   try {
     const { token } = req.body;
 
     if (!token) {
-      return res.status(400).json({
-        success: false,
-        message: "Token is required",
-      });
+      throw new ValidationError("Token is required");
     }
 
     const roll_number = await redisClient.get(token);
 
     if (!roll_number) {
-      return res.status(401).json({
-        success: false,
-        message: "Token is invalid or expired",
-        roll_number: null,
-      });
+      throw new TokenError("Token is invalid or expired");
     }
 
     // Attach roll number to request object
@@ -27,9 +23,9 @@ export const verifyTokenMiddleware = async (req, res, next) => {
     next(); // Continue to main controller
   } catch (err) {
     console.error("Token verification error:", err);
-    return res.status(500).json({
-      success: false,
-      message: "Internal token verification error",
-    });
+    if (err instanceof ValidationError || err instanceof TokenError) {
+      return next(err);
+    }
+    return next(new RedisError("Internal token verification error"));
   }
 };
