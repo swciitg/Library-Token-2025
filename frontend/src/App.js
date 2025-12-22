@@ -28,7 +28,7 @@ function App() {
         </SlotProvider>
       </Router>
       <ToastContainer position="top-center" toastClassName="kiosk-toast" hideProgressBar={false} closeOnClick pauseOnHover 
-        limit={1} />
+        limit={2} />
     </div>
   );
 }
