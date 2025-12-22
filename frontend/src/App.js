@@ -5,6 +5,8 @@ import ShelfPage from './pages/shelfPage';
 import Slot from './pages/slotPage';
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { SlotProvider } from './context/SlotContext.js';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 
 function App() {
@@ -25,6 +27,8 @@ function App() {
           </Routes>
         </SlotProvider>
       </Router>
+      <ToastContainer position="top-center" toastClassName="kiosk-toast" hideProgressBar={false} closeOnClick pauseOnHover 
+        limit={1} />
     </div>
   );
 }
