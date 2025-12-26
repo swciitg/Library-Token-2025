@@ -10,6 +10,9 @@ export const addDeleteEntry = async (req, res, next) => {
   console.log(data);
 
   const rollNo = parseInt(data.rollNo, 10);
+  if (Number.isNaN(rollNo)) {
+    return next(new ValidationError("Invalid rollNo"));
+  }
   console.log(rollNo);
 
   try {
@@ -31,7 +34,7 @@ export const addDeleteEntry = async (req, res, next) => {
     } else {
       //entry
       const emptySlot = await findFirstEmptySlot();
-      if (emptySlot<0) {
+      if (!emptySlot) {
         throw new BadRequestError("No empty slot is available");
       }
       const newEntry = await prisma.entry.create({
@@ -85,15 +88,16 @@ export const allotSlot = async (req, res, next) => {
       const slotData = {
         type: "slot_info",
         data: {
-          slotId: null,
+          slotId: newEntry ? newEntry.slotId : null,
           isEmpty: true,
-          time: Date.now(),
+          timestamp: Date.now(),
           date: formattedDate,
           time: formattedTime,
-        }
+        },
       };
       const ws = req.userConnections.get(rollNo.toString());
-      if (ws && ws.readyState === 1) { // 1 = OPEN
+      if (ws && ws.readyState === 1) {
+        // 1 = OPEN
         ws.send(JSON.stringify(slotData));
       }
       return res.status(200).json({
@@ -104,7 +108,7 @@ export const allotSlot = async (req, res, next) => {
     } else {
       //entry
       const emptySlot = await findFirstEmptySlot();
-      if (emptySlot<0) {
+      if (!emptySlot) {
         throw new BadRequestError("No empty slot is available");
       }
       console.log(emptySlot.id);
@@ -163,7 +167,7 @@ export const createEntry = async (req, res, next) => {
     // 3) Create entry and mark slot not empty
     const [newEntry, updatedSlot] = await prisma.$transaction([
       prisma.entry.create({
-        data: { roll_no: rollNo, slotId: slotId }, 
+        data: { roll_no: rollNo, slotId: slotId },
       }),
       prisma.slot.update({
         where: { id: slotId },
@@ -178,11 +182,12 @@ export const createEntry = async (req, res, next) => {
       type: "slot_info",
       data: {
         slotId: newEntry.slotId,
-        isEmpty: newEntry.isEmpty,
+        // isEmpty: newEntry.isEmpty,
+        isEmpty: false,
         time: Date.now(),
         date: formattedDate,
         time: formattedTime,
-      }
+      },
     };
     const ws = req.userConnections.get(rollNo.toString());
     if (ws && ws.readyState === 1) {
