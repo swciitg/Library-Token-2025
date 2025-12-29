@@ -6,7 +6,6 @@ import prisma, {
   disconnectDatabase,
 } from "./src/db/config.js";
 import entryRoute from "./src/routes/entryRoute.js";
-import authRoute from "./src/routes/authRoute.js";
 import getSlotRoutes from "./src/routes/getSlotRoutes.js";
 import { errorHandler } from "./src/middlewares/error.handler.js";
 import tokenRoute from "./src/routes/tokenRoute.js";
@@ -71,7 +70,6 @@ const attachWebSocket = (userConnections) => {
 app.use(attachWebSocket(userConnections));
 
 app.use("/test/library/api", entryRoute);
-app.use("/test/library/api", authRoute);
 app.use("/test/library/api", getSlotRoutes);
 app.use("/test/library/api", tokenRoute);
 app.get("/library/ws-status", (req, res) => {
