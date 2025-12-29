@@ -69,9 +69,16 @@ const attachWebSocket = (userConnections) => {
 
 app.use(attachWebSocket(userConnections));
 
-app.use("/test/library/api", entryRoute);
-app.use("/test/library/api", getSlotRoutes);
-app.use("/test/library/api", tokenRoute);
+if(process.env.NODE_ENV === "development"){
+  app.use("/test/library/api", entryRoute);
+  app.use("/test/library/api", getSlotRoutes);
+  app.use("/test/library/api", tokenRoute);
+}
+else{
+  app.use("/v1/library/api", entryRoute);
+  app.use("/v1/library/api", getSlotRoutes);
+}
+
 app.get("/library/ws-status", (req, res) => {
   res.json({
     status: "active",
