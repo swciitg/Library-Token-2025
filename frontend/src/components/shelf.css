@@ -1,131 +1,125 @@
-.layout{
-  display:flex;
-  flex-direction:column;
-  gap:10px;
-  padding:10px;
+.layout {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px;
 }
 
-.wall{
-  display:flex;
-  justify-content:center;
+.wall {
+  display: flex;
+  justify-content: center;
 }
 
-.aisle{
-  display:flex;
-  gap:10px;
-  justify-content:space-between;
+.aisle {
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
 }
 
-.block{
-  border:1px solid #ddd;
-  padding:8px;
-  background:#fafafa;
-  border-radius:6px;
+.block {
+  border: 1px solid #ddd;
+  padding: 8px;
+  background: #fafafa;
+  border-radius: 6px;
 }
 
-.pair{
-  display:flex;
-  gap:8px; /* tighter gap within a pair */
+.pair {
+  display: flex;
+  gap: 8px; /* tighter gap within a pair */
 }
 
-.label{
-  font-weight:600;
-  margin-bottom:8px;
-  text-align:center;
+.label {
+  font-weight: 600;
+  margin-bottom: 8px;
+  text-align: center;
 }
 
 /* make certain shelf headings sticky (e.g. Shelf 1 and Shelf 2) */
-.label.sticky{
+.label.sticky {
   position: -webkit-sticky; /* for Safari */
   position: sticky;
   top: 0; /* stick to the top of the visible shelf area */
   z-index: 40; /* sit above slots */
-  background: linear-gradient(180deg, rgba(250,250,250,0.95), rgba(250,250,250,0.95));
+  background: linear-gradient(
+    180deg,
+    rgba(250, 250, 250, 0.95),
+    rgba(250, 250, 250, 0.95)
+  );
   padding: 6px 8px;
   border-radius: 6px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
 }
 
-.slots{
-  display:grid;
+.slots {
+  display: grid;
   grid-template-columns: repeat(4, minmax(28px, 1fr));
-  gap:8px;
+  gap: 8px;
 }
 
-.slots.wide{
+.slots.wide {
   grid-template-columns: repeat(20, minmax(20px, 1fr));
 }
 
-.slots.vertical{
-  display:flex;
-  flex-direction:column;
+.slots.vertical {
+  display: flex;
+  flex-direction: column;
 }
 
-.slot{
-  border:1px solid #ccc;
-  background:#fff;
-  border-radius:6px;
-  min-width:28px;
+.slot {
+  border: 1px solid #ccc;
+  background: #fff;
+  border-radius: 6px;
+  min-width: 28px;
   aspect-ratio: 1 / 1;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:12px;
-  line-height:1;
-  text-align:center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  line-height: 1;
+  text-align: center;
 }
 
 /* removed filled state per latest requirement */
 
-.slot.highlight{
-  background:#fff; /* keep base white, use border/glow for signal */
+.slot.highlight {
+  background: #fff; /* keep base white, use border/glow for signal */
 }
 
-.slot.highlight.checkin{
-  background-color:#34c759; /* green */
-  color:white;
+.slot.highlight.checkin {
+  background-color: #34c759; /* green */
+  color: white;
 }
 
-.slot.highlight.checkout{
-  background-color:#ef4444; /* red */
-  box-shadow:0 0 0 2px #ef4444 inset;
+.slot.highlight.checkout {
+  background-color: #ef4444; /* red */
+  box-shadow: 0 0 0 2px #ef4444 inset;
 }
 
-.entry{
-  text-align:center;
-  font-weight:600;
+.entry {
+  text-align: center;
+  font-weight: 600;
 }
 
-.error{
-  color:#b00020;
-  background:#fde7e9;
-  border:1px solid #f5c2c7;
-  padding:8px;
-  margin:8px 16px;
-  border-radius:4px;
+.error {
+  color: #b00020;
+  background: #fde7e9;
+  border: 1px solid #f5c2c7;
+  padding: 8px;
+  margin: 8px 16px;
+  border-radius: 4px;
 }
 
 .slot {
   scroll-margin-block: 40px; /* gives some space when centered */
 }
 
-.slot.empty {
-  background-color: white;
-  color: black;
+.occupied {
+  color: white;
+  border: 1px solid #0b0;
+  background-color: #0b0;
+}
+
+.empty {
   border: 1px solid #ccc;
-}
-
-.slot.occupied {
-  background-color: #a9a9a9; /* gray */
-  color: white;
-}
-
-.slot.highlight.checkin {
-  background-color: #00bcd4; /* teal for check-in */
-  color: white;
-}
-
-.slot.highlight.checkout {
-  background-color: #555; /* dark gray for checkout */
-  color: white;
+  background-color: #fff;
 }

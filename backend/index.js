@@ -20,8 +20,8 @@ app.use(cors());
 app.use(express.json());
 
 
-app.get("/", (req, res) => {
-  res.send("hi");
+app.get(process.env.BASE_ROUTE, (req, res) =>{
+    res.send("hi");
 });
 await connectDatabase();
 
@@ -96,18 +96,9 @@ const attachWebSocket = (userConnections) => {
   };
 };
 
-
-app.use(attachWebSocket(userConnections));
-
-if(process.env.NODE_ENV === "development"){
-  app.use("/test/library/api", entryRoute);
-  app.use("/test/library/api", getSlotRoutes);
-  app.use("/test/library/api", tokenRoute);
-}
-else{
-  app.use("/v1/library/api", entryRoute);
-  app.use("/v1/library/api", getSlotRoutes);
-}
+app.use(process.env.BASE_ROUTE, entryRoute);
+app.use(process.env.BASE_ROUTE, authRoute);
+app.use(process.env.BASE_ROUTE, getSlotRoutes);
 
 app.get("/library/ws-status", (req, res) => {
   res.json({
@@ -132,6 +123,7 @@ process.on("SIGTERM", async () => {
   });
 });
 
-server.listen(process.env.PORT, () => {
-  console.log(`server listening on port ${process.env.PORT}`);
+
+server.listen(process.env.PORT, ()=>{
+    console.log(`server listening on port ${process.env.PORT}`)
 });

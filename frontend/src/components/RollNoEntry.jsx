@@ -5,62 +5,28 @@ import { useSlot } from "../context/SlotContext.js";
 import Loader from "./Loader.jsx";
 import QRscan from "../images/QR-scan.png";
 
-/* Toast utilities */
-import {
-  showScannerNotReady,
-  clearScannerNotReady,
-} from "../utils/scannerToasts.js";
-import { showErrorToast, handleBackendError } from "../utils/errorToasts.js";
-
 export default function RollEntry() {
   const [rollNo, setRollNo] = useState("");
   const [slotInfo, setSlotInfo] = useState("");
-  const [processing, setProcessing] = useState(false);
-
-  const inputRef = useRef(null);
-  const scannerErrorActive = useRef(false);
-
+  const [loading, setLoading] = useState(false);
   const { setShowSlot, setStatus, setRollNumber } = useSlot();
   const navigate = useNavigate();
 
-  /* Always focus input */
-  useEffect(() => {
-    inputRef.current?.focus();
-  }, []);
-
-  const handleBlur = () => {
-    setTimeout(() => {
-      if (document.hasFocus()) {
-        inputRef.current?.focus();
-      }
-    }, 0);
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (processing || !rollNo) return;
-
     const submittedRoll = rollNo;
-
-    setProcessing(true);
     setStatus("Processing...");
     setSlotInfo("");
-
-    const slowTimer = setTimeout(() => {
-      showErrorToast(
-        "System is slow. Please wait.",
-        scannerErrorActive.current
-      );
-    }, 4000);
+    setLoading(true);
 
     try {
       const data = await allotSlot(submittedRoll);
-      clearTimeout(slowTimer);
 
-      if (data?.error) {
-        handleBackendError(data.error, scannerErrorActive.current);
+      if (data.error) {
         setStatus(data.error);
+        setSlotInfo("");
         setShowSlot("");
+        setLoading(false);
         return;
       }
 
@@ -70,26 +36,27 @@ export default function RollEntry() {
         setSlotInfo(`Slot allotted: ${data.checkin_slot}`);
         setShowSlot(data.checkin_slot);
         setStatus(data.status);
+        setRollNo("");
       } else if (data.checkout_slot) {
         setSlotInfo(`Slot released: ${data.checkout_slot}`);
         setShowSlot(data.checkout_slot);
+        setRollNo("");
         setStatus(data.status);
       } else {
+        setSlotInfo("");
         setShowSlot("");
       }
 
       setRollNumber(submittedRoll);
-      setRollNo("");
 
-      navigate("/slot", { state: data });
+      setLoading(false);
+      navigate("/slot");
     } catch (err) {
       console.error(err);
       setStatus(err?.message || "Network error!");
-      showErrorToast("Network error!", scannerErrorActive.current);
+      setSlotInfo("");
       setShowSlot("");
-    } finally {
-      clearTimeout(slowTimer);
-      setProcessing(false);
+      setLoading(false);
     }
   };
 
@@ -118,8 +85,8 @@ export default function RollEntry() {
 
   return (
     <>
-      {/* Loader overlay (from first code) */}
-      {processing && (
+      {/* Full-screen overlay loader */}
+      {loading && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <Loader />
         </div>
@@ -130,11 +97,10 @@ export default function RollEntry() {
           onSubmit={handleSubmit}
           className="flex flex-col items-center bg-white p-8 rounded-lg shadow-lg space-y-6 w-[500px]"
         >
-          <label className="text-2xl font-semibold">Scan the QR code</label>
-          <label className="text-xl font-semibold">QR कोड को स्कैन करें</label>
-
+          <label htmlFor="roll" className="text-lg font-semibold">
+            Scan the QR code
+          </label>
           <img src={QRscan} alt="QR Code" className="w-64 h-64" />
-
           <input
             ref={inputRef}
             onBlur={handleBlur}
@@ -142,13 +108,12 @@ export default function RollEntry() {
             value={rollNo}
             onChange={(e) => setRollNo(e.target.value)}
             autoFocus
-            className="border border-gray-300 rounded-md px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="border border-gray-300 rounded-md px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 sr-only"
           />
 
           <button
             type="submit"
-            disabled={processing}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-md w-full transition"
+            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-md w-full transition sr-only"
           >
             Get Slot
           </button>

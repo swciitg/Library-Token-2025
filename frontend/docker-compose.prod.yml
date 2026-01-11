@@ -1,7 +1,7 @@
 version: "3.3"
 
 services:
-  cult_web:
+  library_token_frontend:
     image: library_token_frontend
     container_name: library_token_frontend
     restart: always

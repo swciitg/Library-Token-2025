@@ -1,6 +1,6 @@
 version: "3.3"
 services:
-  cult_app:
+  library_token_backend_prod:
     container_name: library_token_backend_prod
     image: library_token_backend_prod
     build:
@@ -12,12 +12,12 @@ services:
     ports:
       - "9574:3001"
     env_file:
-      - .env.prod
+      - .env
     networks:
-      - librarytoken_backend
+      - library-token_backend_test
 
 
 
 networks:
-  librarytoken_backend:
+  library-token_backend_test:
     external: true
