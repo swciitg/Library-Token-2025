@@ -11,6 +11,8 @@ function Shelfs() {
   const [slots, setSlots] = useState([]);
   const [error, setError] = useState("");
   const { showSlot, status, setShowSlot, setStatus } = useSlot();
+  const [occupiedSlots, setOccupiedSlots] = useState(new Set());
+  
 
   // 🔹 Shelf structure (kept as is)
   const shelfStructure = {
@@ -58,7 +60,8 @@ function Shelfs() {
       if (status === "slot-allot") return "slot highlight checkin"; // white
       if (status === "checkout") return "slot highlight checkout"; // red
     }
-    return "slot";
+
+    return slotData.isEmpty ? "empty" : "occupied";
   };
 
   const isSlotEmpty = (slotNumber) => {

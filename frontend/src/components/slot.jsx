@@ -51,6 +51,8 @@ function Shelfs() {
     return "border-gray-300";
   };
 
+  const SlotClass = () =>status === "checkout" ? "bg-rose-500" : "bg-[#8ef7a8]";
+
   useEffect(() => {
     let inputBuffer = "";
     let lastKeyTime = Date.now();
@@ -66,7 +68,6 @@ function Shelfs() {
         lastKeyTime = currentTime;
       } else {
         if (inputBuffer.length > 4 && timeDiff < 100) {
-          console.log("Barcode scan detected:", inputBuffer);
           inputBuffer = "";
           return;
         }

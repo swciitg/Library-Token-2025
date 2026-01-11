@@ -14,6 +14,11 @@ model Slot {
   entry     Entry?
 }
 
+model Student {
+  roll_no BigInt @id
+  timestamp DateTime @default(now())
+}
+
 model Entry {
   id        Int     @id @default(autoincrement())
   roll_no   BigInt  @unique

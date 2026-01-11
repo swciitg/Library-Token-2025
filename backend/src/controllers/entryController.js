@@ -1,12 +1,19 @@
 import prisma from "../db/config.js";
 import findFirstEmptySlot from "../utils/findEmpty.js";
+import { BadRequestError } from "../errors/BadRequestError.js";
+import { ValidationError } from "../errors/ValidationError.js";
+import { NotFoundError } from "../errors/NotFoundError.js";
+import { DatabaseError } from "../errors/DatabaseError.js";
+import { WebSocketError } from "../errors/WebSocketError.js";
 
-export const addDeleteEntry = async (req, res) => {
+export const addDeleteEntry = async (req, res, next) => {
   const data = req.body;
   console.log(data);
 
   const rollNo = parseInt(data.rollNo, 10);
-  console.log(rollNo);
+  if (Number.isNaN(rollNo)) {
+    return next(new ValidationError("Invalid rollNo"));
+  }
 
   try {
     const existing = await prisma.entry.findUnique({
@@ -19,6 +26,17 @@ export const addDeleteEntry = async (req, res) => {
         where: { id: existing.slotId },
         data: { isEmpty: true },
       });
+      const ws = req.userConnections.get(rollNo.toString());
+      if (ws && ws.readyState === 1) {
+        ws.send(
+          JSON.stringify({
+            type: "slot_info",
+            data: {
+              message: "No slot assigned to this roll number",
+            },
+          })
+        );
+      }
       return res.status(200).json({
         message: "checkout successful",
         checkout_slot: existing.slotId,
@@ -28,7 +46,7 @@ export const addDeleteEntry = async (req, res) => {
       //entry
       const emptySlot = await findFirstEmptySlot();
       if (!emptySlot) {
-        return res.status(400).json({ message: "no empty slot is available" });
+        throw new BadRequestError("No empty slot is available");
       }
       const newEntry = await prisma.entry.create({
         data: { roll_no: rollNo, slotId: emptySlot.id },
@@ -40,6 +58,24 @@ export const addDeleteEntry = async (req, res) => {
       // return res.send(entry);
       console.log(newEntry);
       console.log(emptySlot.id);
+      const now = new Date();
+      const formattedDate = now.toISOString().split("T")[0];
+      const formattedTime = now.toTimeString().split(" ")[0];
+      const slotData = {
+        type: "slot_info",
+        data: {
+          slotId: emptySlot.id,
+          isEmpty: false,
+          time: Date.now(),
+          date: formattedDate,
+          timeString: formattedTime,
+        },
+      };
+
+      const ws = req.userConnections.get(rollNo.toString());
+      if (ws && ws.readyState === 1) {
+        ws.send(JSON.stringify(slotData));
+      }
       return res.status(200).json({
         message: "Check-in successful",
         checkin_slot: emptySlot.id,
@@ -183,36 +219,3 @@ export const createEntry = async (req, res) => {
   }
 };
 
-// export const slotFix = async (req, res) => {
-//   try {
-//     // 1. Get all occupied slot IDs (slots currently in use by entries)
-//     const occupiedSlots = await prisma.entry.findMany({
-//       select: { slotId: true },
-//     });
-
-//     // 2. Extract the slot IDs as an array of integers
-//     const occupiedIds = occupiedSlots.map((e) => e.slotId);
-
-//     // 3. Mark those slots as not empty
-//     if (occupiedIds.length > 0) {
-//       await prisma.slot.updateMany({
-//         where: { id: { in: occupiedIds } },
-//         data: { isEmpty: false },
-//       });
-//     }
-
-//     // 4. Optionally, mark all *other* slots as empty
-//     await prisma.slot.updateMany({
-//       where: { id: { notIn: occupiedIds } },
-//       data: { isEmpty: true },
-//     });
-
-//     res.status(200).json({
-//       message: "Slot table synchronized successfully",
-//       occupiedSlotCount: occupiedIds.length,
-//     });
-//   } catch (err) {
-//     console.error(err);
-//     res.status(500).json({ error: err.message });
-//   }
-// };

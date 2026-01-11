@@ -1,4 +1,6 @@
 import prisma from "../db/config.js";
+import { DatabaseError } from "../errors/DatabaseError.js";
+import { WebSocketError } from "../errors/WebSocketError.js"; 
 
 const getSlotByRollNumber = async (req, res) => {
   const { roll_no } = req.params;
@@ -60,7 +62,7 @@ const getSlotByRollNumber = async (req, res) => {
   }
 };
 
-const getAllSlot = async (req, res) => {
+const getAllSlot = async (req, res, next) => {
   try {
     const slots = await prisma.slot.findMany({
       where: {
