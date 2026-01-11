@@ -101,23 +101,32 @@ export const allotSlot = async (req, res) => {
     });
     if (existing) {
       // retrive
-      await prisma.entry.delete({ where: { roll_no: rollNo } });
-      await prisma.slot.update({
-        where: { id: existing.slotId },
-        data: { isEmpty: true },
-      });
+      await prisma.$transaction([
+        prisma.entry.delete({ where: { roll_no: rollNo } }),
+        prisma.slot.update({
+          where: { id: existing.slotId },
+          data: { isEmpty: true },
+        }),
+      ]);
 
       const now = new Date();
       const formattedDate = now.toISOString().split("T")[0];
       const formattedTime = now.toTimeString().split(" ")[0];
-      const slotData = {
-        slotId: null,
-        isEmpty: true,
-        time: Date.now(),
-        date: formattedDate,
-        time: formattedTime,
-      };
-      req.emitToUser(rollNo, "slot_info", slotData);
+      const ws = req.userConnections.get(rollNo.toString());
+      if (ws && ws.readyState === 1) {
+        ws.send(
+          JSON.stringify({
+            type: "slot_info",
+            data: {
+              slotId: null,
+              isEmpty: true,
+              time: Date.now(),
+              date: formattedDate,
+              timeString: formattedTime,
+            },
+          })
+        );
+      }
       return res.status(200).json({
         message: "checkout successful",
         checkout_slot: existing.slotId,
@@ -194,14 +203,21 @@ export const createEntry = async (req, res) => {
     const now = new Date();
     const formattedDate = now.toISOString().split("T")[0];
     const formattedTime = now.toTimeString().split(" ")[0];
-    const slotData = {
-      slotId: newEntry.slotId,
-      isEmpty: newEntry.isEmpty,
-      time: Date.now(),
-      date: formattedDate,
-      time: formattedTime,
-    };
-    req.emitToUser(rollNo, "slot_info", slotData);
+    const ws = req.userConnections.get(rollNo.toString());
+    if (ws && ws.readyState === 1) {
+      ws.send(
+        JSON.stringify({
+          type: "slot_info",
+          data: {
+            slotId: newEntry.slotId,
+            isEmpty: false,
+            time: Date.now(),
+            date: formattedDate,
+            timeString: formattedTime,
+          },
+        })
+      );
+    }
 
     return res.status(201).json({
       message: "Database changed successfully",

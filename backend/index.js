@@ -52,10 +52,38 @@ wss.on('connection', async (ws, req) => {
       },
     });
 
+    if(!entry){
+      const now = new Date();
+      ws.send(
+        JSON.stringify({
+          type: "slot_info",
+          data: {
+            slotId: null,
+            isEmpty: true,
+            time: now.getTime(),
+            date: now.toISOString().split("T")[0],
+            timeString: now.toTimeString().split(" ")[0],
+          },
+        })
+      );
+      return;
+    }
+
+    const formattedDate = entry.createdAt.toISOString().split("T")[0];
+    const formattedTime = entry.createdAt.toTimeString().split(" ")[0];
+
+    const slotData = {
+      slotId: entry.slot.id,
+      isEmpty: entry.slot.isEmpty,
+      time: entry.createdAt.getTime(),
+      date: formattedDate,
+      timeString: formattedTime,
+    };
+
     ws.send(
       JSON.stringify({
-        type: "initial_entry_data",
-        data: entry.slot.id ?? null,
+        type: "slot_info",
+        data: slotData,
       })
     );
 
