@@ -95,6 +95,7 @@ const attachWebSocket = (userConnections) => {
     next();
   };
 };
+app.use(attachWebSocket(userConnections));
 
 app.use(process.env.BASE_ROUTE, entryRoute);
 app.use(process.env.BASE_ROUTE, authRoute);
@@ -110,13 +111,6 @@ app.get("/library/ws-status", (req, res) => {
 app.use(errorHandler);
 
 process.on("SIGINT", async () => {
-  wss.close(() => {
-    console.log("All WebSocket connections closed");
-    disconnectDatabase();
-  });
-});
-
-process.on("SIGTERM", async () => {
   wss.close(() => {
     console.log("All WebSocket connections closed");
     disconnectDatabase();
