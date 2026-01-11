@@ -22,7 +22,9 @@ services:
     image: redis:7-alpine
     restart: always
     volumes:
-      - redis-data-library:/data 
+      - redis-data-library:/data
+    networks:
+      - library-token_backend_test
 
 
 networks:
