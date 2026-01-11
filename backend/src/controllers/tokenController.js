@@ -1,4 +1,7 @@
 import redisClient from "../utils/redisClient.js";
+import { ValidationError } from "../errors/ValidationError.js";
+import { RedisError } from "../errors/RedisError.js";
+
 
 function generateToken(length = 8) {
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -9,16 +12,15 @@ function generateToken(length = 8) {
   return token;
 }
 
-export const storeToken = async (req, res) => {
+export const storeToken = async (req, res, next) => {
   try {
-    const {roll_number} = req.body;
+    const { roll_number } = req.body;
 
     if (!roll_number) {
-      return res.status(400).json({
-        success: false,
-        message: "Token and roll_number are required",
-      });
+      // validation problem -> let global handler format it
+      throw new ValidationError("Token and roll_number are required");
     }
+
     const token = generateToken(8);
     await redisClient.set(token, roll_number, { EX: 30 });
 
@@ -26,15 +28,17 @@ export const storeToken = async (req, res) => {
       success: true,
       message: "Token stored successfully",
       token,
-      expiresIn: 30,
+      expiresIn: 30, 
     });
   } catch (error) {
     console.error("Error storing token:", error);
-    res.status(500).json({
-      success: false,
-      message: "Failed to store token",
-      error: error.message,
-    });
+
+    if (error instanceof ValidationError) {
+      return next(error);
+    }
+
+    // Redis / unexpected issues
+    return next(new RedisError("Failed to store token"));
   }
 };
 

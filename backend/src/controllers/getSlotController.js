@@ -1,6 +1,8 @@
 import prisma from "../db/config.js";
+import { DatabaseError } from "../errors/DatabaseError.js";
+import { WebSocketError } from "../errors/WebSocketError.js"; 
 
-const getSlotByRollNumber = async (req, res) => {
+const getSlotByRollNumber = async (req, res, next) => {
     const {roll_no} = req.params;
     try{
         const entry = await prisma.entry.findUnique({
@@ -64,7 +66,7 @@ const getSlotByRollNumber = async (req, res) => {
     }
     catch(error) {
         console.error(error);
-                const ws = req.userConnections.get(roll_no.toString());
+        const ws = req.userConnections.get(roll_no.toString());
         if (ws && ws.readyState === 1) {
             ws.send(JSON.stringify({
                 type: 'slot_error',
@@ -73,11 +75,11 @@ const getSlotByRollNumber = async (req, res) => {
                 }
             }));
         }
-        return res.status(500).json({message: "An error occured while fetching the data"});
+        return next(new DatabaseError("An error occurred while fetching the data"));
     }
 };
 
-const getAllSlot = async (req, res) => {
+const getAllSlot = async (req, res, next) => {
   try {
     const slots = await prisma.slot.findMany({
       where: {
@@ -96,9 +98,7 @@ const getAllSlot = async (req, res) => {
     return res.status(200).json(slots);
   } catch (error) {
     console.error(error);
-    return res.status(500).json({
-      message: "An error occurred while fetching the slot data",
-    });
+    return next(new DatabaseError("An error occurred while fetching the slot data"));
   }
 };
 

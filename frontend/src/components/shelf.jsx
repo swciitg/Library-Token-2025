@@ -45,7 +45,6 @@ function Shelfs() {
         .map((slot) => Number(slot.id));
       
       setOccupiedSlots(new Set(occupied));
-      console.log("Occupied Slots:", occupied);
       
     } catch (err) {
       setError(err.message || "Failed to fetch slots");

@@ -6,8 +6,8 @@ import prisma, {
   disconnectDatabase,
 } from "./src/db/config.js";
 import entryRoute from "./src/routes/entryRoute.js";
-import authRoute from "./src/routes/authRoute.js";
 import getSlotRoutes from "./src/routes/getSlotRoutes.js";
+import { errorHandler } from "./src/middlewares/error.handler.js";
 import tokenRoute from "./src/routes/tokenRoute.js";
 import { createServer } from "http";
 import { WebSocketServer } from 'ws';
@@ -18,6 +18,7 @@ const server = createServer(app);
 const wss = new WebSocketServer({ server });
 app.use(cors());
 app.use(express.json());
+
 
 app.get("/", (req, res) => {
   res.send("hi");
@@ -39,6 +40,36 @@ wss.on('connection', (ws, req) => {
   console.log(`User connected: ${ws.roll_no}`);
   
   userConnections.set(rollno.toString(), ws);
+
+  ws.on("message", (message) => {
+    console.log("RAW MESSAGE:", message.toString());
+
+    let payload;
+    try {
+      payload = JSON.parse(message.toString());
+    } catch (e) {
+      ws.send(
+        JSON.stringify({
+          type: "error",
+          message: "Invalid JSON",
+        })
+      );
+      return;
+    }
+
+    console.log("PARSED MESSAGE:", payload);
+
+    if (payload.type === "ping") {
+      ws.send(
+        JSON.stringify({
+          type: "pong",
+          data: {
+            timestamp: Date.now(),
+          },
+        })
+      );
+    }
+  });
   
   // ws.send(JSON.stringify({
   //   type: 'connection_confirmed',
@@ -68,10 +99,15 @@ const attachWebSocket = (userConnections) => {
 
 app.use(attachWebSocket(userConnections));
 
-app.use("/test/library/api", entryRoute);
-app.use("/test/library/api", authRoute);
-app.use("/test/library/api", getSlotRoutes);
-app.use("/test/library/api", tokenRoute);
+if(process.env.NODE_ENV === "development"){
+  app.use("/test/library/api", entryRoute);
+  app.use("/test/library/api", getSlotRoutes);
+  app.use("/test/library/api", tokenRoute);
+}
+else{
+  app.use("/v1/library/api", entryRoute);
+  app.use("/v1/library/api", getSlotRoutes);
+}
 
 app.get("/library/ws-status", (req, res) => {
   res.json({
@@ -80,6 +116,7 @@ app.get("/library/ws-status", (req, res) => {
     timestamp: Date.now(),
   });
 });
+app.use(errorHandler);
 
 process.on("SIGINT", async () => {
   wss.close(() => {

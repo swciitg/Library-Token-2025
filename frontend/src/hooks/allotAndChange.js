@@ -17,16 +17,15 @@ function handleAxiosError(err) {
   } else {
     return { error: err.message || "Unknown error" };
   }
-}
+} 
 
 export async function allotSlot(rollNo) {
   try {
     const { data } = await axios.post(
-      `${BASE_URL}/allot`,
-      { rollNo },
+      `${BASE_URL}/entry`,
+      { token: rollNo },
       axiosConfig
     );
-    console.log(`${BASE_URL}/allot`);
     return data;
   } catch (err) {
     return handleAxiosError(err);
