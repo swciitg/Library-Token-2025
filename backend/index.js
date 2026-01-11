@@ -13,7 +13,7 @@ dotenv.config();
 const app = express();
 const server = createServer(app);
 const io = new Server(server, {
-  path:"/test/library/api",
+  path:process.env.BASE_ROUTE,
   cors: {
     origin:"*", methods: ["GET", "POST"], credentials: true
   }
@@ -22,7 +22,7 @@ app.use(cors());
 app.use(express.json());
 
 
-app.get("/", (req, res) =>{
+app.get(process.env.BASE_ROUTE, (req, res) =>{
     res.send("hi");
 });
 await connectDatabase();
@@ -59,9 +59,9 @@ io.on('connection', (socket) => {
 
 app.use(attachSocketIO(io, userConnections));
 
-app.use(entryRoute);
-app.use(authRoute);
-app.use(getSlotRoutes);
+app.use(process.env.BASE_ROUTE, entryRoute);
+app.use(process.env.BASE_ROUTE, authRoute);
+app.use(process.env.BASE_ROUTE, getSlotRoutes);
 
 app.get("/library/ws-status", (req, res) => {
   res.json({
