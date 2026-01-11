@@ -11,6 +11,8 @@ function Shelfs() {
   const [slots, setSlots] = useState([]);
   const [error, setError] = useState("");
   const { showSlot, status, setShowSlot, setStatus } = useSlot();
+  const [occupiedSlots, setOccupiedSlots] = useState(new Set());
+  
 
   // 🔹 Shelf structure (kept as is)
   const shelfStructure = {
@@ -27,22 +29,32 @@ function Shelfs() {
     },
   };
 
-  useEffect(() => {
-    const fetchSlots = async () => {
-      try {
-        const data = await allSlot();
+ useEffect(() => {
+  const fetchSlots = async () => {
+    try {
+      const data = await allSlot();
 
-        if (!Array.isArray(data)) {
-          throw new Error("Invalid slot data format");
-        }
-        setSlots(data);
-      } catch (err) {
-        setError(err.message || "Failed to fetch slots");
+      if (!Array.isArray(data)) {
+        throw new Error("Invalid slot data format");
       }
-    };
 
-    fetchSlots();
-  }, []);
+      setSlots(data);
+
+      const occupied = data
+        .filter((slot) => slot.isEmpty === false)
+        .map((slot) => Number(slot.id));
+      
+      setOccupiedSlots(new Set(occupied));
+      
+    } catch (err) {
+      setError(err.message || "Failed to fetch slots");
+    }
+  };
+
+  fetchSlots();
+
+}, []);
+
 
   const slotById = useMemo(() => {
     const m = new Map();
@@ -54,12 +66,18 @@ function Shelfs() {
 
   // 🔹 Function to determine slot color
   const getSlotClass = (slotNumber) => {
-    if (Number(showSlot) === Number(slotNumber)) {
-      if (status === "slot-allot") return "slot highlight checkin"; // white
-      if (status === "checkout") return "slot highlight checkout"; // red
-    }
-    return "slot";
-  };
+  const isOccupied = occupiedSlots.has(Number(slotNumber));
+  
+  if (Number(showSlot) === Number(slotNumber)) {
+    if (status === "slot-allot") return "slot highlight checkin";
+    if (status === "checkout") return "slot highlight checkout";
+  }
+  
+  if (isOccupied) return "slot occupied";
+  
+  return "slot empty";
+};
+
 
   const isSlotEmpty = (slotNumber) => {
     const n = Number(slotNumber);
