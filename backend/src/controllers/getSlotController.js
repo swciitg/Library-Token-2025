@@ -14,7 +14,6 @@ const getSlotByRollNumber = async (req, res, next) => {
             }
         });
 
-
         const now = new Date();
         const formattedDate = now.toISOString().split("T")[0];
         const formattedTime = now.toTimeString().split(" ")[0]; 

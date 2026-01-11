@@ -21,13 +21,13 @@ app.use(express.json());
 
 
 app.get("/", (req, res) => {
-  res.send("hi");
+  res.send("hi"); 
 });
 await connectDatabase();
 
 const userConnections = new Map();
 
-wss.on('connection', (ws, req) => {
+wss.on('connection', async (ws, req) => {
   const url = new URL(req.url, `http://${req.headers.host}`);
   const rollno = url.searchParams.get('roll_no');
   
@@ -40,8 +40,36 @@ wss.on('connection', (ws, req) => {
   console.log(`User connected: ${ws.roll_no}`);
   
   userConnections.set(rollno.toString(), ws);
+  // to send initial entry data on connection
+  try {
+    const entry = await prisma.entry.findUnique({
+      where: {
+        roll_no: BigInt(rollno),
+      },
+      include: {
+        slot: true,
+      },
+    });
 
-  ws.on("message", (message) => {
+    ws.send(
+      JSON.stringify({
+        type: "initial_entry_data",
+        data: entry.slot.id ?? null,
+      })
+    );
+
+    console.log("Entry data sent to", rollno);
+  } catch (error) {
+    console.error("DB error on connection:", error);
+    ws.send(
+      JSON.stringify({
+        type: "error",
+        message: "Failed to load entry data.",
+      })
+    );
+  }
+
+  ws.on("message", async (message) => {
     console.log("RAW MESSAGE:", message.toString());
 
     let payload;
@@ -69,15 +97,55 @@ wss.on('connection', (ws, req) => {
         })
       );
     }
+
+    if (payload.type === "store_token") {
+    try {
+      const { token } = payload.data;
+
+      if (!token) {
+        ws.send(
+          JSON.stringify({
+            type: "error",
+            message: "Token is required",
+          })
+        );
+        return;
+      }
+
+      // Verify token from Redis
+      const roll_number = await redisClient.get(token);
+
+      if (!roll_number) {
+        ws.send(
+          JSON.stringify({
+            type: "token_invalid",
+            message: "Token is invalid or expired",
+          })
+        );
+        return;
+      }
+
+      ws.send(
+        JSON.stringify({
+          type: "token_verified",
+          data: {
+            roll_number,
+            entry,
+          },
+        })
+      );
+    } catch (err) {
+      console.error("Token verify error:", err);
+      ws.send(
+        JSON.stringify({
+          type: "error",
+          message: "Internal error while verifying token",
+        })
+      );
+    }
+    return;
+  }
   });
-  
-  // ws.send(JSON.stringify({
-  //   type: 'connection_confirmed',
-  //   data: {
-  //     roll_no: rollno,
-  //     timestamp: Date.now()
-  //   }
-  // }));
 
   ws.on('error', (error) => {
     console.error(`WebSocket error for ${ws.roll_no}:`, error);
