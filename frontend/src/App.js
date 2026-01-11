@@ -12,10 +12,7 @@ import 'react-toastify/dist/ReactToastify.css';
 function App() {
   const [showSlot, setShowSlot] = useState("");
   const [status, setStatus] = useState("");
-  console.log(showSlot);
-  console.log(status);
   const base_route = '/test/library';
-  console.log("Base API is:", process.env.REACT_APP_API_BASE_URL);
   return (
     <div className="App">
       <Router basename={base_route}>

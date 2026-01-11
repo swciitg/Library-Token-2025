@@ -28,7 +28,7 @@ export const storeToken = async (req, res, next) => {
       success: true,
       message: "Token stored successfully",
       token,
-      expiresIn: 30,
+      expiresIn: 30, 
     });
   } catch (error) {
     console.error("Error storing token:", error);

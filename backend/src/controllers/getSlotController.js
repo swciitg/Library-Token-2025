@@ -1,6 +1,6 @@
 import prisma from "../db/config.js";
 import { DatabaseError } from "../errors/DatabaseError.js";
-import { WebSocketError } from "../errors/WebSocketError.js";
+import { WebSocketError } from "../errors/WebSocketError.js"; 
 
 const getSlotByRollNumber = async (req, res, next) => {
     const {roll_no} = req.params;

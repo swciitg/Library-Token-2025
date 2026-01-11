@@ -10,7 +10,6 @@ function Shelfs() {
 
   const newEntry = async () => {
     if (status === "slot-allot") await changeDb(rollNumber, showSlot);
-    console.log(`${rollNumber} , ${showSlot}`);
     setShowSlot("");
     setStatus("");
     navigate("/");
@@ -33,7 +32,6 @@ function Shelfs() {
         lastKeyTime = currentTime;
       } else {
         if (inputBuffer.length > 4 && timeDiff < 100) {
-          console.log("Barcode scan detected:", inputBuffer);
           inputBuffer = "";
           return;
         }

@@ -40,6 +40,36 @@ wss.on('connection', (ws, req) => {
   console.log(`User connected: ${ws.roll_no}`);
   
   userConnections.set(rollno.toString(), ws);
+
+  ws.on("message", (message) => {
+    console.log("RAW MESSAGE:", message.toString());
+
+    let payload;
+    try {
+      payload = JSON.parse(message.toString());
+    } catch (e) {
+      ws.send(
+        JSON.stringify({
+          type: "error",
+          message: "Invalid JSON",
+        })
+      );
+      return;
+    }
+
+    console.log("PARSED MESSAGE:", payload);
+
+    if (payload.type === "ping") {
+      ws.send(
+        JSON.stringify({
+          type: "pong",
+          data: {
+            timestamp: Date.now(),
+          },
+        })
+      );
+    }
+  });
   
   // ws.send(JSON.stringify({
   //   type: 'connection_confirmed',

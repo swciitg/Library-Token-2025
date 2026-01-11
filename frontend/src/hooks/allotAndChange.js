@@ -21,7 +21,6 @@ function handleAxiosError(err) {
 
 export async function allotSlot(rollNo) {
   try {
-    console.log(`request sent to ${BASE_URL}/entry with rollNo:, ${rollNo}`);
     const { data } = await axios.post(
       `${BASE_URL}/entry`,
       { token: rollNo },
