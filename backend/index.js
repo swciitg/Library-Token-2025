@@ -98,7 +98,7 @@ const attachWebSocket = (userConnections) => {
 app.use(attachWebSocket(userConnections));
 
 app.use(process.env.BASE_ROUTE, entryRoute);
-app.use(process.env.BASE_ROUTE, authRoute);
+// app.use(process.env.BASE_ROUTE, authRoute);
 app.use(process.env.BASE_ROUTE, getSlotRoutes);
 
 app.get("/library/ws-status", (req, res) => {

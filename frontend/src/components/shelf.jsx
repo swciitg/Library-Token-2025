@@ -12,7 +12,6 @@ function Shelfs() {
   const [error, setError] = useState("");
   const { showSlot, status, setShowSlot, setStatus } = useSlot();
   const [occupiedSlots, setOccupiedSlots] = useState(new Set());
-  
 
   // 🔹 Shelf structure (kept as is)
   const shelfStructure = {
@@ -37,7 +36,14 @@ function Shelfs() {
         if (!Array.isArray(data)) {
           throw new Error("Invalid slot data format");
         }
+
         setSlots(data);
+
+        const occupied = data
+          .filter((slot) => slot.isEmpty === false)
+          .map((slot) => Number(slot.id));
+
+        setOccupiedSlots(new Set(occupied));
       } catch (err) {
         setError(err.message || "Failed to fetch slots");
       }
@@ -56,12 +62,16 @@ function Shelfs() {
 
   // 🔹 Function to determine slot color
   const getSlotClass = (slotNumber) => {
+    const isOccupied = occupiedSlots.has(Number(slotNumber));
+
     if (Number(showSlot) === Number(slotNumber)) {
-      if (status === "slot-allot") return "slot highlight checkin"; // white
-      if (status === "checkout") return "slot highlight checkout"; // red
+      if (status === "slot-allot") return "slot highlight checkin";
+      if (status === "checkout") return "slot highlight checkout";
     }
 
-    return slotData.isEmpty ? "empty" : "occupied";
+    if (isOccupied) return "slot occupied";
+
+    return "slot empty";
   };
 
   const isSlotEmpty = (slotNumber) => {
