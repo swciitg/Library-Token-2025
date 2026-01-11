@@ -11,6 +11,7 @@ import { errorHandler } from "./src/middlewares/error.handler.js";
 import tokenRoute from "./src/routes/tokenRoute.js";
 import { createServer } from "http";
 import { WebSocketServer } from 'ws';
+import redisClient from "./src/utils/redisClient.js";
 
 dotenv.config();
 const app = express();
@@ -27,7 +28,7 @@ await connectDatabase();
 
 const userConnections = new Map();
 
-wss.on('connection', (ws, req) => {
+wss.on('connection', async (ws, req) => {
   const url = new URL(req.url, `http://${req.headers.host}`);
   const rollno = url.searchParams.get('roll_no');
   
@@ -40,8 +41,36 @@ wss.on('connection', (ws, req) => {
   console.log(`User connected: ${ws.roll_no}`);
   
   userConnections.set(rollno.toString(), ws);
+  // to send initial entry data on connection
+  try {
+    const entry = await prisma.entry.findUnique({
+      where: {
+        roll_no: BigInt(rollno),
+      },
+      include: {
+        slot: true,
+      },
+    });
 
-  ws.on("message", (message) => {
+    ws.send(
+      JSON.stringify({
+        type: "initial_entry_data",
+        data: entry.slot.id ?? null,
+      })
+    );
+
+    console.log("Entry data sent to", rollno);
+  } catch (error) {
+    console.error("DB error on connection:", error);
+    ws.send(
+      JSON.stringify({
+        type: "error",
+        message: "Failed to load entry data.",
+      })
+    );
+  }
+
+  ws.on("message", async (message) => {
     console.log("RAW MESSAGE:", message.toString());
 
     let payload;
@@ -69,15 +98,11 @@ wss.on('connection', (ws, req) => {
         })
       );
     }
+
+    if(payload.type === 'store_token'){
+      await handleStoreToken(ws, payload);
+    }
   });
-  
-  // ws.send(JSON.stringify({
-  //   type: 'connection_confirmed',
-  //   data: {
-  //     roll_no: rollno,
-  //     timestamp: Date.now()
-  //   }
-  // }));
 
   ws.on('error', (error) => {
     console.error(`WebSocket error for ${ws.roll_no}:`, error);
@@ -88,6 +113,53 @@ wss.on('connection', (ws, req) => {
     userConnections.delete(rollno.toString());
   });
 });
+
+const handleStoreToken = async (ws, payload) => {
+    try {
+        const { token, roll_no } = payload.data;
+
+        if (!token) {
+          ws.send(
+            JSON.stringify({
+              type: "error",
+              message: "Token is required",
+            })
+          );
+          return;
+        }
+
+        if (!roll_no) {
+          ws.send(
+            JSON.stringify({
+              type: "roll_invalid",
+              message: "Invalid roll number",
+            })
+          );
+          return;
+        }
+
+        // set token in redis and expire after 30 seconds
+        await redisClient.set(token, roll_no, "EX", 30);
+
+        ws.send(
+          JSON.stringify({
+            type: "token_stored",
+            data: {
+              roll_no,
+              token,
+            },
+          })
+        );
+      } catch (err) {
+        console.error("Token store error:", err);
+        ws.send(
+          JSON.stringify({
+            type: "error",
+            message: "Internal error while storing token",
+          })
+        );
+      }
+}
 
 const attachWebSocket = (userConnections) => {
   return (req, res, next) => {
