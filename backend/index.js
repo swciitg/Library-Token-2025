@@ -135,7 +135,6 @@ const handleStoreToken = async (ws, payload) => {
       ws.send(JSON.stringify({ type: "error", message: "Token is required" }));
       return;
     }
-
     if (!roll_no) {
       ws.send(
         JSON.stringify({ type: "roll_invalid", message: "Invalid roll" })
@@ -143,7 +142,8 @@ const handleStoreToken = async (ws, payload) => {
       return;
     }
 
-    await redisClient.set(token, roll_no, "EX", 30);
+    const check = await redisClient.set(token, roll_no, "EX", 500);
+    console.log("SET TOKEN:", JSON.stringify(token), token.length);
 
     ws.send(
       JSON.stringify({
