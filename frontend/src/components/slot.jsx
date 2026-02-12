@@ -1,57 +1,22 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSlot } from "../context/SlotContext.js";
 import "./shelf.css";
 import { changeDb } from "../hooks/allotAndChange.js";
-import Loader from "./Loader.jsx";
 
 function Shelfs() {
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
   const { showSlot, status, setShowSlot, setStatus, rollNumber } = useSlot();
 
   const newEntry = async () => {
-    // Guard against double calls
-    if (loading) return;
-
-    setLoading(true);
-    try {
-      if (status === "slot-allot") {
-        await changeDb(rollNumber, showSlot);
-      }
-
-      console.log(`${rollNumber} , ${showSlot}`);
-
-      // clear context state
-      setShowSlot("");
-      setStatus("");
-
-      // stop loader before navigation to avoid React warnings
-      setLoading(false);
-      navigate("/");
-    } catch (err) {
-      console.error(err);
-      setStatus(err?.message || "Something went wrong");
-      setLoading(false);
-    }
+    if (status === "slot-allot") await changeDb(rollNumber, showSlot);
+    setShowSlot("");
+    setStatus("");
+    navigate("/");
   };
 
-  // const SlotClass = () => {
-  //   if (status === "slot-allot")
-  //     return "border-emerald-500 ring-4 ring-emerald-200";
-  //   if (status === "checkout") return "border-rose-500 ring-4 ring-rose-200";
-  //   return "border-gray-300";
-  // };
-
-  const SlotClass = () => {
-    if (status === "slot-allot")
-      return "border-emerald-500 ring-4 ring-emerald-200 bg-emerald-500";
-    if (status === "checkout")
-      return "border-rose-500 ring-4 ring-rose-200 bg-rose-500";
-    return "border-gray-300";
-  };
-
-  const SlotClass = () =>status === "checkout" ? "bg-rose-500" : "bg-[#8ef7a8]";
+  const SlotClass = () =>
+    status === "checkout" ? "bg-rose-500" : "bg-[#8ef7a8]";
 
   useEffect(() => {
     let inputBuffer = "";
@@ -92,37 +57,34 @@ function Shelfs() {
   else shelfNo = "5-B";
 
   return (
-    <div className="flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 font-[Inter]">
-      {/* Loader overlay */}
-      {loading && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-          <Loader />
-        </div>
-      )}
-
+    <div className=" font-[Inter] text-black">
       <div
-        className={`${SlotClass()} relative rounded-2xl 
-          bg-[#34c759]
-          border-4 shadow-2xl p-10 w-96 h-[380px] 
-          flex flex-col items-center justify-center 
-          transition-all duration-300`}
+        className={`${SlotClass()} rounded-2xl 
+    w-[70vh]  flex flex-col gap-10 items-center justify-center 
+    transition-all duration-300 p-0 
+     shadow-lg`}
       >
         {/* Shelf */}
-        <div className="absolute top-6 left-6 text-left">
-          <span className="text-2xl font-semibold tracking-widest text-green-100">
-            Shelf:
-          </span>
-          <span className="ml-2 text-2xl font-bold text-white">
-            {shelfNo || "--"}
-          </span>
+        <div className="flex bg-white justify-center h-full items- w-full">
+          <div
+            className={` ${SlotClass()} w-full rounded-tr-[40px] h-12  text-2xl`}
+          ></div>
+          <div className="flex items-center justify-center gap-2 px-4 py-2  bg-white   shadow-sm">
+            <span className="text-2xl font-semibold text-gray-800">Shelf:</span>
+            <span className="text-2xl font-bold text-gray-900">
+              {shelfNo || "--"}
+            </span>
+          </div>
+          <div
+            className={` ${SlotClass()} rounded-tl-[40px] w-full h-12 text-2xl`}
+          ></div>
         </div>
-
         {/* Slot */}
-        <div className="flex mt-[-4rem] flex-col items-center justify-center">
-          <span className="text-3xl tracking-wider text-white mb-2 font-semibold">
+        <div className="flex flex-col items-center  justify-center">
+          <span className="text-3xl tracking-wider  mb-2 font-semibold">
             Slot
           </span>
-          <span className="text-8xl font-extrabold text-white drop-shadow-md leading-none">
+          <span className="text-[135px] font-extrabold  drop-shadow-md ">
             {showSlot || "--"}
           </span>
         </div>
@@ -130,7 +92,7 @@ function Shelfs() {
         {/* Done button */}
         <button
           onClick={newEntry}
-          className="absolute bottom-4 w-[95%] rounded-lg bg-white px-4 py-3 text-black text-lg font-semibold shadow-md hover:from-indigo-700 hover:to-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-400 transition-all"
+          className="w-[95%] rounded-lg  bg-white px-4 py-3 text-black text-lg font-semibold shadow-md hover:from-indigo-700 hover:to-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-400 transition-all mb-3"
         >
           DONE
         </button>

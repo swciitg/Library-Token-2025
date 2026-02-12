@@ -5,6 +5,7 @@ import { RedisError } from "../errors/RedisError.js";
 
 export const verifyTokenMiddleware = async (req, res, next) => {
   try {
+    console.log("Token verification middleware ", req.body);
     const { token } = req.body;
 
     if (!token) {

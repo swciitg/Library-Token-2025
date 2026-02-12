@@ -15,9 +15,20 @@ services:
       - .env.test
     networks:
       - library-token_backend_test
+    depends_on:
+      - redis  
 
+  redis:
+    image: redis:7-alpine
+    restart: always
+    volumes:
+      - redis-data-library:/data
+    networks:
+      - library-token_backend_test
 
 
 networks:
   library-token_backend_test:
     external: true
+volumes:
+  redis-data-library: 
