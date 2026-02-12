@@ -205,6 +205,7 @@ process.on("SIGINT", async () => {
   process.exit(0);
 });
 
-server.listen(process.env.PORT, () => {
-  console.log(`Server listening on port ${process.env.PORT}`);
+
+server.listen(process.env.PORT, ()=>{
+    console.log(`server listening on port ${process.env.PORT}`)
 });
