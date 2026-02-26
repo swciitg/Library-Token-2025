@@ -60,6 +60,8 @@ export default function RollEntry() {
       if (data?.error) {
         handleBackendError(data.error, scannerErrorActive.current);
         setStatus(data.error);
+        // fix: clear slot and roll number on error
+        setRollNo("");
         setShowSlot("");
         return;
       }
@@ -86,6 +88,8 @@ export default function RollEntry() {
       console.error(err);
       setStatus(err?.message || "Network error!");
       showErrorToast("Network error!", scannerErrorActive.current);
+      // fix: clear slot and roll number on error 
+      setRollNo("");
       setShowSlot("");
     } finally {
       clearTimeout(slowTimer);
