@@ -235,3 +235,55 @@ export const createEntry = async (req, res) => {
   }
 };
 
+export const getTimelapsed = async (req, res, next) => {
+  const data = req.query;
+
+  if (data.rollNo === undefined) {
+    return next(new BadRequestError("Roll No and slot Id are required in query params"));
+  }
+  
+  const rollNo = parseInt(data.rollNo, 10);
+  if (Number.isNaN(rollNo)) {
+    return next(new ValidationError("Invalid rollNo"));
+  }
+  
+  try {
+    const existing = await prisma.entry.findUnique({
+      where: { 
+        roll_no: rollNo 
+      },
+    });
+  
+    if (!existing) {
+      throw new BadRequestError("Invalid slot for user");
+    }
+  
+    const now = new Date();
+    const createdAt = existing.createdAt;
+  
+    const diff = now.getTime() - createdAt.getTime(); 
+    const diffSeconds = Math.floor(diff / 1000);
+  
+    let alertMsg = "";
+    let shouldBeBanned = false;
+    if (diffSeconds > 48 * 60 * 60) {
+      alertMsg = "48hrs. passed, User should be banned";
+      shouldBeBanned = true;
+    } else if (diffSeconds > 24 * 60 * 60) {
+      alertMsg = "Belongings occupying Shelf for over 24hrs."
+    }
+
+    res.status(200).json({
+      alertMsg ,
+      shouldBeBanned ,
+      timelapsedSeconds: diffSeconds ,
+      slotId : existing.slotId
+    });
+
+  } catch (err) {
+    console.log(err)
+    res.status(500).json({
+      error : err.message
+    });
+  }
+};
