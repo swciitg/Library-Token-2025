@@ -7,6 +7,8 @@ import prisma, {
 } from "./src/db/config.js";
 import entryRoute from "./src/routes/entryRoute.js";
 import getSlotRoutes from "./src/routes/getSlotRoutes.js";
+import authRoute from "./src/routes/authRoute.js";
+import tokenRoute from "./src/routes/tokenRoute.js";
 import { errorHandler } from "./src/middlewares/error.handler.js";
 import { createServer } from "http";
 import { WebSocketServer } from "ws";
@@ -69,7 +71,7 @@ wss.on("connection", async (ws, req) => {
             date: now.toISOString().split("T")[0],
             timeString: now.toTimeString().split(" ")[0],
           },
-        })
+        }),
       );
     } else {
       ws.send(
@@ -82,7 +84,7 @@ wss.on("connection", async (ws, req) => {
             date: entry.createdAt.toISOString().split("T")[0],
             timeString: entry.createdAt.toTimeString().split(" ")[0],
           },
-        })
+        }),
       );
     }
   } catch (error) {
@@ -108,7 +110,7 @@ wss.on("connection", async (ws, req) => {
         JSON.stringify({
           type: "pong",
           data: { timestamp: Date.now() },
-        })
+        }),
       );
     }
 
@@ -137,7 +139,7 @@ const handleStoreToken = async (ws, payload) => {
     }
     if (!roll_no) {
       ws.send(
-        JSON.stringify({ type: "roll_invalid", message: "Invalid roll" })
+        JSON.stringify({ type: "roll_invalid", message: "Invalid roll" }),
       );
       return;
     }
@@ -149,7 +151,7 @@ const handleStoreToken = async (ws, payload) => {
       JSON.stringify({
         type: "token_stored",
         data: { roll_no, token },
-      })
+      }),
     );
   } catch (err) {
     console.error("Token store error:", err);
@@ -165,8 +167,10 @@ const attachWebSocket = (userConnections) => {
 };
 app.use(attachWebSocket(userConnections));
 
+app.use(process.env.BASE_ROUTE, authRoute);
 app.use(process.env.BASE_ROUTE, entryRoute);
 app.use(process.env.BASE_ROUTE, getSlotRoutes);
+app.use(process.env.BASE_ROUTE, tokenRoute);
 
 // this is debug route remove it while deploying
 app.get(
@@ -185,9 +189,8 @@ app.get(
       console.error("Redis read error:", err);
       res.status(500).json({ error: "Redis read failure" });
     }
-  }
+  },
 );
-
 
 app.get("/library/ws-status", (req, res) => {
   res.json({
@@ -205,7 +208,6 @@ process.on("SIGINT", async () => {
   process.exit(0);
 });
 
-
-server.listen(process.env.PORT, ()=>{
-    console.log(`server listening on port ${process.env.PORT}`)
+server.listen(process.env.PORT, () => {
+  console.log(`server listening on port ${process.env.PORT}`);
 });
