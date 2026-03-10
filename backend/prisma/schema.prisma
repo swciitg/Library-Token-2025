@@ -11,6 +11,7 @@ datasource db {
 model Slot {
   id        Int      @id
   isEmpty   Boolean  @default(true)
+  isBlocked  Boolean  @default(false)
   entry     Entry?
 }
 
@@ -31,5 +32,6 @@ model User {
   id        String   @id @default(uuid()) @db.Uuid
   email     String   @unique
   password  String  
+  role      String   @default("user") // "user" or "admin"
   createdAt DateTime @default(now())
 }
