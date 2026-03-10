@@ -9,6 +9,7 @@ import entryRoute from "./src/routes/entryRoute.js";
 import getSlotRoutes from "./src/routes/getSlotRoutes.js";
 import authRoute from "./src/routes/authRoute.js";
 import tokenRoute from "./src/routes/tokenRoute.js";
+import adminRoute from "./src/routes/adminRoute.js";
 import { errorHandler } from "./src/middlewares/error.handler.js";
 import { createServer } from "http";
 import { WebSocketServer } from "ws";
@@ -171,6 +172,7 @@ app.use(process.env.BASE_ROUTE, authRoute);
 app.use(process.env.BASE_ROUTE, entryRoute);
 app.use(process.env.BASE_ROUTE, getSlotRoutes);
 app.use(process.env.BASE_ROUTE, tokenRoute);
+app.use(process.env.BASE_ROUTE, adminRoute);
 
 // this is debug route remove it while deploying
 app.get(
