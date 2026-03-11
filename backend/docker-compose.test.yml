@@ -19,6 +19,7 @@ services:
       - redis  
 
   redis:
+    container_name: library_token_redis_test
     image: redis:7-alpine
     restart: always
     volumes:

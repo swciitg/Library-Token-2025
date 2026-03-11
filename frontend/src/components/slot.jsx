@@ -67,16 +67,16 @@ function Shelfs() {
         {/* Shelf */}
         <div className="flex bg-white justify-center h-full items- w-full">
           <div
-            className={` ${SlotClass()} w-full rounded-tr-[40px] h-12  text-2xl`}
+            className={` ${SlotClass()} w-[90%] rounded-tr-[40px] h-12  text-2xl`}
           ></div>
-          <div className="flex items-center justify-center gap-2 px-4 py-2  bg-white   shadow-sm">
-            <span className="text-2xl font-semibold text-gray-800">Shelf:</span>
-            <span className="text-2xl font-bold text-gray-900">
+          <div className="flex items-center justify-center gap-2 px-4 py-2  bg-white  shadow-sm">
+            <span className="text-xl font-semibold text-gray-800">Shelf:</span>
+            <span className="text-xl font-bold text-gray-900">
               {shelfNo || "--"}
             </span>
           </div>
           <div
-            className={` ${SlotClass()} rounded-tl-[40px] w-full h-12 text-2xl`}
+            className={` ${SlotClass()} rounded-tl-[40px] w-[90%] h-12 text-2xl`}
           ></div>
         </div>
         {/* Slot */}
