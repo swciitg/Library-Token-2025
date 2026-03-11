@@ -115,6 +115,10 @@ wss.on("connection", async (ws, req) => {
       );
     }
 
+    if (payload.type === "generate_token") {
+      await handleGenerateToken(ws, payload);
+    }
+
     if (payload.type === "store_token") {
       await handleStoreToken(ws, payload);
     }
@@ -129,6 +133,26 @@ wss.on("connection", async (ws, req) => {
     console.error(`WS ERROR for ${ws.roll_no}:`, err);
   });
 });
+
+const handleGenerateToken = async (ws, payload) => {
+  try {
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    let token = "";
+    for (let i = 0; i < 8; i++) {
+      token += chars[Math.floor(Math.random() * chars.length)];
+    }
+    console.log("Generated token: ", token);
+    ws.send(
+      JSON.stringify({
+        "type": "token_generated",
+        "data": {token}, 
+      })
+    )
+  } catch (err) {
+    console.error("Token generation error:", err);
+    ws.send(JSON.stringify({ type: "error", message: "Internal token generation error" }));
+  }
+}
 
 const handleStoreToken = async (ws, payload) => {
   try {
@@ -145,7 +169,7 @@ const handleStoreToken = async (ws, payload) => {
       return;
     }
 
-    const check = await redisClient.set(token, roll_no, "EX", 500);
+    const check = await redisClient.set(token, roll_no, "EX", 30);
     console.log("SET TOKEN:", JSON.stringify(token), token.length);
 
     ws.send(
