@@ -18,6 +18,7 @@ model Slot {
 model Student {
   roll_no BigInt @id
   timestamp DateTime @default(now())
+  isBanned Boolean @default(false)
 }
 
 model Entry {

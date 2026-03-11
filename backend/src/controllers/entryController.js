@@ -2,9 +2,6 @@ import prisma from "../db/config.js";
 import findFirstEmptySlot from "../utils/findEmpty.js";
 import { BadRequestError } from "../errors/BadRequestError.js";
 import { ValidationError } from "../errors/ValidationError.js";
-import { NotFoundError } from "../errors/NotFoundError.js";
-import { DatabaseError } from "../errors/DatabaseError.js";
-import { WebSocketError } from "../errors/WebSocketError.js";
 
 export const addDeleteEntry = async (req, res, next) => {
   const data = req.body;
@@ -22,6 +19,7 @@ export const addDeleteEntry = async (req, res, next) => {
     if (existing) {
       // retrive
       await prisma.entry.delete({ where: { roll_no: rollNo } });
+      await prisma.student.delete({ where: {roll_no: rollNo}});
       await prisma.slot.update({
         where: { id: existing.slotId },
         data: { isEmpty: true },
@@ -34,7 +32,7 @@ export const addDeleteEntry = async (req, res, next) => {
             data: {
               message: "No slot assigned to this roll number",
             },
-          })
+          }),
         );
       }
       return res.status(200).json({
@@ -88,55 +86,77 @@ export const addDeleteEntry = async (req, res, next) => {
   }
 };
 
-export const getTimelapsed = async (req, res, next) => {
-  const data = req.query;
-
-  if (data.rollNo === undefined) {
-    return next(new BadRequestError("Roll No and slot Id are required in query params"));
-  }
-  
-  const rollNo = parseInt(data.rollNo, 10);
-  if (Number.isNaN(rollNo)) {
-    return next(new ValidationError("Invalid rollNo"));
-  }
-  
+export const checkStudentStatus = async (req, res) => {
   try {
-    const existing = await prisma.entry.findUnique({
-      where: { 
-        roll_no: rollNo 
+    const rollNo = parseInt(req.query.rollNo, 10);
+    const entry = await prisma.entry.findUnique({
+      where: {
+        roll_no: rollNo,
       },
     });
-  
-    if (!existing) {
-      throw new BadRequestError("Invalid slot for user");
+
+    // If no slot exists
+    if (!entry) {
+      return res.status(200).json({
+        message: null,
+        isBanned: false,
+        slotId: null,
+      });
     }
-  
+
     const now = new Date();
-    const createdAt = existing.createdAt;
-  
-    const diff = now.getTime() - createdAt.getTime(); 
-    const diffSeconds = Math.floor(diff / 1000);
-  
-    let alertMsg = "";
-    let shouldBeBanned = false;
-    if (diffSeconds > 48 * 60 * 60) {
-      alertMsg = "48hrs. passed, User should be banned";
-      shouldBeBanned = true;
-    } else if (diffSeconds > 24 * 60 * 60) {
-      alertMsg = "Belongings occupying Shelf for over 24hrs."
+    const createdAt = entry.createdAt;
+
+    const diffMs = now.getTime() - createdAt.getTime();
+    const diffHours = diffMs / (1000 * 60 * 60);
+
+    // 0 - 24 hrs
+    if (diffHours <= 24) {
+      return res.status(200).json({
+        message: null,
+        isBanned: false,
+        slotId: entry.slotId,
+      });
     }
 
-    res.status(200).json({
-      alertMsg ,
-      shouldBeBanned ,
-      timelapsedSeconds: diffSeconds ,
-      slotId : existing.slotId
-    });
+    // 24 - 48 hrs
+    if (diffHours > 24 && diffHours <= 48) {
+      const remaining = Math.ceil(48 - diffHours);
+      return res.status(200).json({
+        message: `Collect your bag in ${remaining} hrs`,
+        isBanned: false,
+        slotId: entry.slotId,
+      });
+    }
 
+    // > 48 hrs
+    if (diffHours >48){
+
+      let student = await prisma.student.findUnique({
+        where: {roll_no: rollNo},
+      });
+
+      if (!student) {
+        await prisma.student.create({
+          data: {
+            roll_no: rollNo,
+            isBanned: true,
+          },
+        });
+      } else if (!student.isBanned) {
+        await prisma.student.update({
+          where: { roll_no: rollNo },
+          data: { isBanned: true },
+        });
+      }
+
+      return res.status(200).json({
+        message: `You are banned collect your bag from ${entry.slotId} to keep using onestop`,
+        isBanned: true,
+        slotId: entry.slotId,
+      });
+    }
   } catch (err) {
-    console.log(err)
-    res.status(500).json({
-      error : err.message
-    });
+    return res.status(500).json({ error: err.message });
   }
 };
