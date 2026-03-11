@@ -62,17 +62,19 @@ function Shelfs() {
 
   // 🔹 Function to determine slot color
   const getSlotClass = (slotNumber) => {
-    const isOccupied = occupiedSlots.has(Number(slotNumber));
+  const slotData = slotById.get(Number(slotNumber));
+  const isBlocked = slotData?.isBlocked === true;
+  const isOccupied = occupiedSlots.has(Number(slotNumber));
 
-    if (Number(showSlot) === Number(slotNumber)) {
-      if (status === "slot-allot") return "slot highlight checkin";
-      if (status === "checkout") return "slot highlight checkout";
-    }
+  if (Number(showSlot) === Number(slotNumber)) {
+    if (status === "slot-allot") return "slot highlight checkin";
+    if (status === "checkout") return "slot highlight checkout";
+  }
 
-    if (isOccupied) return "slot occupied";
-
-    return "slot empty";
-  };
+  if (isBlocked)  return "slot blocked";  // ← grey
+  if (isOccupied) return "slot occupied"; // ← green
+  return "slot empty";                    // ← white
+};
 
   const isSlotEmpty = (slotNumber) => {
     const n = Number(slotNumber);

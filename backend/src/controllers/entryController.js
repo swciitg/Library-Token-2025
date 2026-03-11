@@ -88,150 +88,55 @@ export const addDeleteEntry = async (req, res, next) => {
   }
 };
 
-export const allotSlot = async (req, res) => {
-  const data = req.body;
-  console.log(data);
+export const getTimelapsed = async (req, res, next) => {
+  const data = req.query;
 
+  if (data.rollNo === undefined) {
+    return next(new BadRequestError("Roll No and slot Id are required in query params"));
+  }
+  
   const rollNo = parseInt(data.rollNo, 10);
-  console.log(rollNo);
-
+  if (Number.isNaN(rollNo)) {
+    return next(new ValidationError("Invalid rollNo"));
+  }
+  
   try {
     const existing = await prisma.entry.findUnique({
-      where: { roll_no: rollNo },
-    });
-    if (existing) {
-      // retrive
-      await prisma.$transaction([
-        prisma.entry.delete({ where: { roll_no: rollNo } }),
-        prisma.slot.update({
-          where: { id: existing.slotId },
-          data: { isEmpty: true },
-        }),
-      ]);
-
-      const now = new Date();
-      const formattedDate = now.toISOString().split("T")[0];
-      const formattedTime = now.toTimeString().split(" ")[0];
-      const ws = req.userConnections.get(rollNo.toString());
-      if (ws && ws.readyState === 1) {
-        ws.send(
-          JSON.stringify({
-            type: "slot_info",
-            data: {
-              slotId: null,
-              isEmpty: true,
-              time: Date.now(),
-              date: formattedDate,
-              timeString: formattedTime,
-            },
-          })
-        );
-      }
-      return res.status(200).json({
-        message: "checkout successful",
-        checkout_slot: existing.slotId,
-        status: "checkout",
-      });
-    } else {
-      //entry
-      const emptySlot = await findFirstEmptySlot();
-      if (!emptySlot) {
-        return res.status(400).json({ message: "no empty slot is available" });
-      }
-      console.log(emptySlot.id);
-      return res.status(200).json({
-        message: "Slot allotment successfull",
-        checkin_slot: emptySlot.id,
-        status: "slot-allot",
-      });
-    }
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: err.message });
-  }
-};
-
-export const createEntry = async (req, res) => {
-  const data = req.body;
-  console.log(data);
-
-  const rollNo = parseInt(data.rollNo, 10);
-  console.log(rollNo);
-
-  const slotId = parseInt(data.slotId, 10);
-  console.log(slotId);
-
-  if (Number.isNaN(rollNo) || Number.isNaN(slotId)) {
-    return res.status(400).json({ message: "Invalid rollNo or slotId" });
-  }
-
-  try {
-    // 1) Check if roll is already checked-in
-    const existingRoll = await prisma.entry.findUnique({
-      where: { roll_no: rollNo },
-    });
-    if (existingRoll) {
-      return res.status(400).json({
-        message: "This roll number is already checked in",
-        checkout_slot: existingRoll.slotId,
-        status: "already-checked-in",
-      });
-    }
-
-    // 2) Check slot existence and emptiness
-    const slot = await prisma.slot.findUnique({ where: { id: slotId } });
-    if (!slot) {
-      return res.status(404).json({ message: "Slot not found" });
-    }
-    if (!slot.isEmpty) {
-      return res
-        .status(400)
-        .json({ message: "Slot is not empty / already taken" });
-    }
-
-    // 3) Create entry and mark slot not empty
-    const [newEntry, updatedSlot] = await prisma.$transaction([
-      prisma.entry.create({
-        data: { roll_no: rollNo, slotId: slotId }, 
-      }),
-      prisma.slot.update({
-        where: { id: slotId },
-        data: { isEmpty: false },
-      }),
-    ]);
-
-    const now = new Date();
-    const formattedDate = now.toISOString().split("T")[0];
-    const formattedTime = now.toTimeString().split(" ")[0];
-    const ws = req.userConnections.get(rollNo.toString());
-    if (ws && ws.readyState === 1) {
-      ws.send(
-        JSON.stringify({
-          type: "slot_info",
-          data: {
-            slotId: newEntry.slotId,
-            isEmpty: false,
-            time: Date.now(),
-            date: formattedDate,
-            timeString: formattedTime,
-          },
-        })
-      );
-    }
-
-    return res.status(201).json({
-      message: "Database changed successfully",
-      checkin_slot: slotId,
-      status: "dbchange",
-      entry: {
-        id: newEntry.id.toString(),
-        roll_no: newEntry.roll_no.toString(),
-        slotId: newEntry.slotId.toString(),
+      where: { 
+        roll_no: rollNo 
       },
     });
+  
+    if (!existing) {
+      throw new BadRequestError("Invalid slot for user");
+    }
+  
+    const now = new Date();
+    const createdAt = existing.createdAt;
+  
+    const diff = now.getTime() - createdAt.getTime(); 
+    const diffSeconds = Math.floor(diff / 1000);
+  
+    let alertMsg = "";
+    let shouldBeBanned = false;
+    if (diffSeconds > 48 * 60 * 60) {
+      alertMsg = "48hrs. passed, User should be banned";
+      shouldBeBanned = true;
+    } else if (diffSeconds > 24 * 60 * 60) {
+      alertMsg = "Belongings occupying Shelf for over 24hrs."
+    }
+
+    res.status(200).json({
+      alertMsg ,
+      shouldBeBanned ,
+      timelapsedSeconds: diffSeconds ,
+      slotId : existing.slotId
+    });
+
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: err.message });
+    console.log(err)
+    res.status(500).json({
+      error : err.message
+    });
   }
 };
-

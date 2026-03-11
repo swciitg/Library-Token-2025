@@ -11,6 +11,7 @@ datasource db {
 model Slot {
   id        Int      @id
   isEmpty   Boolean  @default(true)
+  isBlocked  Boolean  @default(false)
   entry     Entry?
 }
 
