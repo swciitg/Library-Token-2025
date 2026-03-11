@@ -267,7 +267,7 @@ function AdminShelfs() {
                 <div style={{ display: "flex", gap: 10 }}>
                   <button onClick={() => setPopup(null)} disabled={updating} style={cancelBtn}>Cancel</button>
                   <button onClick={handleUnblock} disabled={updating} style={{ ...actionBtn, background: "#22c55e" }}>
-                    {updating ? "Saving..." : "🔓 Unblock"}
+                    {updating ? "Saving..." : "Unblock"}
                   </button>
                 </div>
               </>
@@ -282,7 +282,7 @@ function AdminShelfs() {
                 <div style={{ display: "flex", gap: 10 }}>
                   <button onClick={() => setPopup(null)} disabled={updating} style={cancelBtn}>Cancel</button>
                   <button onClick={handleBlock} disabled={updating} style={{ ...actionBtn, background: "#9ca3af" }}>
-                    {updating ? "Saving..." : "🔒 Block"}
+                    {updating ? "Saving..." : "Block"}
                   </button>
                 </div>
               </>
