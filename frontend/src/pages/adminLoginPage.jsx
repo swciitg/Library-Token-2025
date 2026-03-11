@@ -7,7 +7,7 @@ export default function AdminLoginPage() {
   return (
     <div className="bg-white min-h-screen flex flex-col">
         <AdminHeader />
-        <div className="flex-grow flex items-center justify-center">
+        <div className="flex-grow flex items-center justify-center min-h-60">
             <AdminLogin />
         </div>
         <Footer />

@@ -20,7 +20,7 @@ export default function AdminLogin() {
     setLoading(true);
 
     try {
-      const res = await axios.post("http://localhost:5001/test/library/api/auth/login", {
+      const res = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/auth/login`, {
         email,
         password,
       });
@@ -34,23 +34,21 @@ export default function AdminLogin() {
   };
 
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center px-4">
+    <div className="w-full bg-white flex items-center justify-center px-4">
       <div className="bg-white border border-gray-200 rounded-2xl shadow-lg w-full max-w-lg p-10">
-
         {/* Header */}
         <div className="mb-8 text-center">
-          <h1 className="text-2xl font-bold text-gray-800">Admin Login</h1>
-          <p className="text-sm text-gray-400 mt-1">Sign in to continue</p>
+          <p className="text-2xl font-bold text-gray-800">
+            Sign in to continue
+          </p>
         </div>
 
         {/* Form */}
         <form onSubmit={handleLogin} className="space-y-5">
-
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1.5">Email</label>
             <input
               type="email"
-              placeholder="admin@example.com"
+              placeholder="your email id"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm text-gray-800 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
@@ -58,7 +56,6 @@ export default function AdminLogin() {
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1.5">Password</label>
             <div className="relative">
               <input
                 type={showPass ? "text" : "password"}
@@ -90,17 +87,36 @@ export default function AdminLogin() {
           >
             {loading ? (
               <>
-                <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                <svg
+                  className="animate-spin w-4 h-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  />
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8v8H4z"
+                  />
                 </svg>
                 Signing in...
               </>
-            ) : "Sign In"}
+            ) : (
+              "Sign In"
+            )}
           </button>
         </form>
 
-        <p className="text-center text-xs text-gray-300 mt-6">Authorized personnel only</p>
+        <p className="text-center text-xs text-gray-300 mt-6">
+          Authorized personnel only
+        </p>
       </div>
     </div>
   );
