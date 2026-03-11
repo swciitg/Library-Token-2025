@@ -5,99 +5,40 @@ import { ValidationError } from "../errors/ValidationError.js";
 import { AuthenticationError } from "../errors/AuthenticationError.js";
 import { DatabaseError } from "../errors/DatabaseError.js";
 
-const generateJWT = (userId, email) => {
-  return jwt.sign({ id: userId, email }, process.env.JWT_SECRET, {
+const generateJWT = (userId, username) => {
+  return jwt.sign({ id: userId, username }, process.env.JWT_SECRET, {
     expiresIn: "7d",
   });
 };
 
-export const signup = async (req, res, next) => {
-  try {
-    const { email, password } = req.body;
-
-    if (!email || !password) {
-      throw new ValidationError("Email, password, and are required");
-    }
-
-    if (password.length < 8) {
-      throw new ValidationError("Password must be at least 8 characters");
-    }
-
-    const existingUser = await prisma.user.findUnique({
-      where: { email },
-    });
-
-    if (existingUser) {
-      throw new AuthenticationError("User with this email already exists");
-    }
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    const user = await prisma.user.create({
-      data: {
-        email,
-        password: hashedPassword,
-      },
-    });
-
-    const token = generateJWT(user.id, user.email);
-
-    res.status(201).json({
-      success: true,
-      message: "User registered successfully",
-      token,
-      user: {
-        id: user.id,
-        email: user.email,
-        createdAt: user.createdAt,
-      },
-    });
-  } catch (error) {
-    console.error("Error in signup:", error);
-
-    if (
-      error instanceof ValidationError ||
-      error instanceof AuthenticationError
-    ) {
-      return next(error);
-    }
-
-    return next(new DatabaseError("Failed to register user"));
-  }
-};
-
 export const login = async (req, res, next) => {
   try {
-    const { email, password } = req.body;
+    const { username, password } = req.body;
 
-    if (!email || !password) {
-      throw new ValidationError("Email and password are required");
+    if (!username || !password) {
+      throw new ValidationError("username and password are required");
     }
 
-    const user = await prisma.user.findUnique({
-      where: { email },
-    });
+    const adminUsername = process.env.ADMIN_USERNAME;
+    const adminPassword = process.env.ADMIN_PASSWORD;
 
-    if (!user) {
-      throw new AuthenticationError("Invalid email or password");
+    if (username !== adminUsername) {
+      throw new AuthenticationError("Invalid username or password");
     }
 
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-
-    if (!isPasswordValid) {
-      throw new AuthenticationError("Invalid email or password");
+    if (password !== adminPassword) {
+      throw new AuthenticationError("Invalid username or password");
     }
 
-    const token = generateJWT(user.id, user.email);
+    const token = generateJWT("admin", username);
 
     res.status(200).json({
       success: true,
       message: "Login successful",
       token,
       user: {
-        id: user.id,
-        email: user.email,
-        createdAt: user.createdAt,
+        id: "admin",
+        username: username,
       },
     });
   } catch (error) {
