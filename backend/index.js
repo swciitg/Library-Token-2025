@@ -66,7 +66,7 @@ wss.on('connection', async (ws, req) => {
           },
         })
       );
-      return;
+      // return;
     }
 
     const formattedDate = entry.createdAt.toISOString().split("T")[0];
