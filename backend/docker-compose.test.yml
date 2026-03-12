@@ -16,9 +16,9 @@ services:
     networks:
       - library-token_backend_test
     depends_on:
-      - redis  
+      - redis_library_test
 
-  redis:
+  redis_library_test:
     container_name: library_token_redis_test
     image: redis:7-alpine
     restart: always
