@@ -119,6 +119,10 @@ wss.on("connection", async (ws, req) => {
       await handleGenerateToken(ws, payload);
     }
 
+    if (payload.type === "generate_token") {
+      await handleGenerateToken(ws, payload);
+    }
+
     if (payload.type === "store_token") {
       await handleStoreToken(ws, payload);
     }
