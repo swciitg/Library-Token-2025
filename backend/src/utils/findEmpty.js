@@ -69,6 +69,7 @@ async function findFirstEmptySlot() {
         where: {
           id: candidateId,
           isEmpty: true,
+          isBlocked: false,
         },
         data: {
           isEmpty: false,
