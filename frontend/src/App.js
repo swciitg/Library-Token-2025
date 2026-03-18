@@ -16,7 +16,7 @@ import ProtectedRoute from './components/ProtectedRoute.jsx';
 function App() {
   const [showSlot, setShowSlot] = useState("");
   const [status, setStatus] = useState("");
-  const base_route = '/test/library';
+  const base_route = '/library';
   return (
     <div className="App">
       <Router basename={base_route}>
