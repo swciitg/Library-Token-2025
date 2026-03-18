@@ -1,5 +1,5 @@
 
-name: Frontend Deployment
+name: Frontend Test Deployment
 on:
     workflow_dispatch:
     # push:
