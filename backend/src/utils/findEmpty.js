@@ -69,12 +69,12 @@ async function findFirstEmptySlot() {
         where: {
           id: candidateId,
           isEmpty: true,
+          isBlocked: false,
         },
         data: {
           isEmpty: false,
         },
       });
-
       if (res.count && res.count === 1) {
         const slot = await prisma.slot.findUnique({
           where: { id: candidateId },

@@ -22,7 +22,7 @@ export const storeToken = async (req, res, next) => {
     }
 
     const token = generateToken(8);
-    await redisClient.set(token, roll_number, { EX: 30 });
+    await redisClient.set(token, roll_number, "EX", 20);
 
     res.status(200).json({
       success: true,

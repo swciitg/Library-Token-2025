@@ -7,6 +7,9 @@ import prisma, {
 } from "./src/db/config.js";
 import entryRoute from "./src/routes/entryRoute.js";
 import getSlotRoutes from "./src/routes/getSlotRoutes.js";
+import authRoute from "./src/routes/authRoute.js";
+import tokenRoute from "./src/routes/tokenRoute.js";
+import adminRoute from "./src/routes/adminRoute.js";
 import { errorHandler } from "./src/middlewares/error.handler.js";
 import { createServer } from "http";
 import { WebSocketServer } from "ws";
@@ -69,7 +72,7 @@ wss.on("connection", async (ws, req) => {
             date: now.toISOString().split("T")[0],
             timeString: now.toTimeString().split(" ")[0],
           },
-        })
+        }),
       );
     } else {
       ws.send(
@@ -82,7 +85,7 @@ wss.on("connection", async (ws, req) => {
             date: entry.createdAt.toISOString().split("T")[0],
             timeString: entry.createdAt.toTimeString().split(" ")[0],
           },
-        })
+        }),
       );
     }
   } catch (error) {
@@ -108,8 +111,16 @@ wss.on("connection", async (ws, req) => {
         JSON.stringify({
           type: "pong",
           data: { timestamp: Date.now() },
-        })
+        }),
       );
+    }
+
+    if (payload.type === "generate_token") {
+      await handleGenerateToken(ws, payload);
+    }
+
+    if (payload.type === "generate_token") {
+      await handleGenerateToken(ws, payload);
     }
 
     if (payload.type === "store_token") {
@@ -127,6 +138,32 @@ wss.on("connection", async (ws, req) => {
   });
 });
 
+const handleGenerateToken = async (ws, payload) => {
+  try {
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    let token = "";
+    for (let i = 0; i < 5; i++) {
+      token += chars[Math.floor(Math.random() * chars.length)];
+    }
+    token = `#${token}#`;
+    console.log("Generated token: ", token);
+    ws.send(
+      JSON.stringify({
+        type: "token_generated",
+        data: { token },
+      }),
+    );
+  } catch (err) {
+    console.error("Token generation error:", err);
+    ws.send(
+      JSON.stringify({
+        type: "error",
+        message: "Internal token generation error",
+      }),
+    );
+  }
+};
+
 const handleStoreToken = async (ws, payload) => {
   try {
     const { token, roll_no } = payload.data;
@@ -137,19 +174,19 @@ const handleStoreToken = async (ws, payload) => {
     }
     if (!roll_no) {
       ws.send(
-        JSON.stringify({ type: "roll_invalid", message: "Invalid roll" })
+        JSON.stringify({ type: "roll_invalid", message: "Invalid roll" }),
       );
       return;
     }
 
-    const check = await redisClient.set(token, roll_no, "EX", 500);
+    const check = await redisClient.set(token, roll_no, "EX", 30);
     console.log("SET TOKEN:", JSON.stringify(token), token.length);
 
     ws.send(
       JSON.stringify({
         type: "token_stored",
         data: { roll_no, token },
-      })
+      }),
     );
   } catch (err) {
     console.error("Token store error:", err);
@@ -165,8 +202,11 @@ const attachWebSocket = (userConnections) => {
 };
 app.use(attachWebSocket(userConnections));
 
+app.use(process.env.BASE_ROUTE, authRoute);
 app.use(process.env.BASE_ROUTE, entryRoute);
 app.use(process.env.BASE_ROUTE, getSlotRoutes);
+app.use(process.env.BASE_ROUTE, tokenRoute);
+app.use(process.env.BASE_ROUTE, adminRoute);
 
 // this is debug route remove it while deploying
 app.get(
@@ -185,9 +225,8 @@ app.get(
       console.error("Redis read error:", err);
       res.status(500).json({ error: "Redis read failure" });
     }
-  }
+  },
 );
-
 
 app.get("/library/ws-status", (req, res) => {
   res.json({
@@ -205,7 +244,6 @@ process.on("SIGINT", async () => {
   process.exit(0);
 });
 
-
-server.listen(process.env.PORT, ()=>{
-    console.log(`server listening on port ${process.env.PORT}`)
+server.listen(process.env.PORT, () => {
+  console.log(`server listening on port ${process.env.PORT}`);
 });

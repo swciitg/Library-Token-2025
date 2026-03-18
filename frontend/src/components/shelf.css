@@ -123,3 +123,9 @@
   border: 1px solid #ccc;
   background-color: #fff;
 }
+.slot.blocked {
+  background-color: #9ca3af;
+  color: #fff;
+  border-color: #6b7280;
+  cursor: not-allowed;
+}

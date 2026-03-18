@@ -9,7 +9,7 @@ async function main() {
       prisma.slot.upsert({
         where: { id: i },
         update: {},
-        create: { id: i, isEmpty: true },
+        create: { id: i, isEmpty: true, isBlocked: false },
       })
     );
   }

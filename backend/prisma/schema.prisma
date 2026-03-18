@@ -11,12 +11,14 @@ datasource db {
 model Slot {
   id        Int      @id
   isEmpty   Boolean  @default(true)
+  isBlocked  Boolean  @default(false)
   entry     Entry?
 }
 
 model Student {
   roll_no BigInt @id
   timestamp DateTime @default(now())
+  isBanned Boolean @default(false)
 }
 
 model Entry {
