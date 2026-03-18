@@ -1,4 +1,4 @@
-name: Backend Deployment
+name: Frontend Prod Deployment
 on:
     workflow_dispatch:
     # push:
