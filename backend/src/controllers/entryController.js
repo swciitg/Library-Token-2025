@@ -19,7 +19,14 @@ export const addDeleteEntry = async (req, res, next) => {
     if (existing) {
       // retrive
       await prisma.entry.delete({ where: { roll_no: rollNo } });
-      await prisma.student.delete({ where: {roll_no: rollNo}});
+      const student = await prisma.student.findUnique({
+        where: { roll_no: rollNo },
+      });
+      if (student) {
+        await prisma.student.delete({
+          where: { roll_no: rollNo },
+        });
+      }
       await prisma.slot.update({
         where: { id: existing.slotId },
         data: { isEmpty: true },
