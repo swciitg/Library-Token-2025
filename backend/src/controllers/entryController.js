@@ -119,8 +119,17 @@ export const checkStudentStatus = async (req, res) => {
 
     // 0 - 24 hrs
     if (diffHours <= 24) {
+      const formattedDate = new Date().toLocaleString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+      });
+
       return res.status(200).json({
-        message: null,
+        message: `Collect your bag before ${formattedDate}`,
         isBanned: false,
         slotId: entry.slotId,
       });
