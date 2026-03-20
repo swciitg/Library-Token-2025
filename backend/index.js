@@ -166,8 +166,9 @@ const handleGenerateToken = async (ws, payload) => {
 
 const handleStoreToken = async (ws, payload) => {
   try {
+    console.log("yaha pe aaya mein this function is called");
     const { token, roll_no } = payload.data;
-
+    console.log("Storing token:", token, "for roll_no", roll_no);
     if (!token) {
       ws.send(JSON.stringify({ type: "error", message: "Token is required" }));
       return;
