@@ -66,9 +66,18 @@ export const addDeleteEntry = async (req, res, next) => {
       const now = new Date();
       const formattedDate = now.toISOString().split("T")[0];
       const formattedTime = now.toTimeString().split(" ")[0];
+      const leftTime = new Date().toLocaleString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+      });
       const slotData = {
         type: "slot_info",
         data: {
+          message: `Collect your bag before ${leftTime}`,
           slotId: emptySlot.id,
           isEmpty: false,
           time: Date.now(),
@@ -119,17 +128,8 @@ export const checkStudentStatus = async (req, res) => {
 
     // 0 - 24 hrs
     if (diffHours <= 24) {
-      const formattedDate = new Date().toLocaleString("en-US", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-      });
-
       return res.status(200).json({
-        message: `Collect your bag before ${formattedDate}`,
+        message: null,
         isBanned: false,
         slotId: entry.slotId,
       });
