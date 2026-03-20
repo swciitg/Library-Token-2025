@@ -127,6 +127,10 @@ export const getInfo = async (req, res, next) => {
 
     const rollNo = entry.roll_no;
 
+    const prefix = String(rollNo).slice(0, 2);
+    const year = `20${prefix}`;
+    const imageUrl = `https://online.iitg.ac.in/sprofile/GALLERY/${year}/PHOTO/${rollNo}_P.jpg`;
+
     function hmacRollNo(rollNo) {
       return crypto
         .createHmac("sha256", process.env.HASH_SECRET)
@@ -149,13 +153,13 @@ export const getInfo = async (req, res, next) => {
     const encryptedPayload = apiResponse.data;
     const decryptedString = decryptWithAesGcm(encryptedPayload);
     const decryptedData = JSON.parse(decryptedString);
-    
+
     res.status(200).json({
       success: true,
       name: decryptedData.name,
       email: decryptedData.outlookEmail,
       rollNo: decryptedData.rollNo,
-
+      imageUrl: imageUrl,
     });
   } catch (error) {
     console.log(error);
