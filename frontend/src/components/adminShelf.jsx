@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSlot } from "../context/SlotContext.js";
 import { allSlot } from "../hooks/allotAndChange.js";
@@ -17,6 +17,10 @@ function AdminShelfs() {
   const [popup, setPopup] = useState(null);
   const [updating, setUpdating] = useState(false);
   const [updateMsg, setUpdateMsg] = useState("");
+  const [slotInfo, setSlotInfo] = useState(null);
+  const [slotInfoLoading, setSlotInfoLoading] = useState(false);
+  const [slotInfoError, setSlotInfoError] = useState("");
+  const slotInfoRequestIdRef = useRef(0);
 
   const shelfStructure = {
     1: Array.from({ length: 84 }, (_, i) => i + 1),
@@ -78,11 +82,46 @@ function AdminShelfs() {
   };
 
   // ── Click slot → open popup ──────────────────────────────────
-  const handleSlotClick = (slotNumber) => {
+  const handleSlotClick = async (slotNumber) => {
     setUpdateMsg("");
     const { isBlocked, isEmpty } = getSlotData(slotNumber);
     const currentStatus = isBlocked ? "blocked" : isEmpty ? "empty" : "occupied";
     setPopup({ slotNumber, currentStatus });
+    setSlotInfo(null);
+    setSlotInfoError("");
+    setSlotInfoLoading(false);
+
+    if (currentStatus !== "occupied") {
+      slotInfoRequestIdRef.current += 1;
+      return;
+    }
+
+    setSlotInfoLoading(true);
+    const requestId = ++slotInfoRequestIdRef.current;
+    try {
+      const { data } = await axios.get(`${BASE_URL}/admin/slot/info`, {
+        params: { slot: slotNumber },
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
+      if (slotInfoRequestIdRef.current !== requestId) return;
+      if (data?.success) {
+        setSlotInfo({
+          name: data.name,
+          email: data.email,
+          rollNo: data.rollNo,
+          imageUrl: data.imageUrl,
+        });
+      } else {
+        setSlotInfoError("Could not load slot owner details.");
+      }
+    } catch (err) {
+      if (slotInfoRequestIdRef.current !== requestId) return;
+      setSlotInfoError(err.response?.data?.message || "Failed to fetch slot owner details.");
+    } finally {
+      if (slotInfoRequestIdRef.current === requestId) {
+        setSlotInfoLoading(false);
+      }
+    }
   };
 
   // ── Block slot ───────────────────────────────────────────────
@@ -265,7 +304,16 @@ function AdminShelfs() {
                   Unblocking will set this slot to <strong style={{ color: "#64748b" }}>empty</strong>.
                 </p>
                 <div style={{ display: "flex", gap: 10 }}>
-                  <button onClick={() => setPopup(null)} disabled={updating} style={cancelBtn}>Cancel</button>
+                  <button
+                    onClick={() => {
+                      slotInfoRequestIdRef.current += 1;
+                      setPopup(null);
+                    }}
+                    disabled={updating}
+                    style={cancelBtn}
+                  >
+                    Cancel
+                  </button>
                   <button onClick={handleUnblock} disabled={updating} style={{ ...actionBtn, background: "#22c55e" }}>
                     {updating ? "Saving..." : "Unblock"}
                   </button>
@@ -276,11 +324,57 @@ function AdminShelfs() {
             {/* Empty or Occupied → Block only */}
             {popup.currentStatus !== "blocked" && (
               <>
+                {popup.currentStatus === "occupied" && (
+                  <div style={{
+                    border: "1px solid #e2e8f0",
+                    borderRadius: 10,
+                    padding: 10,
+                    marginBottom: 12,
+                    textAlign: "left",
+                    background: "#f8fafc",
+                  }}>
+                    {slotInfoLoading && (
+                      <div style={{ fontSize: 12, color: "#475569" }}>Loading user details...</div>
+                    )}
+                    {!slotInfoLoading && slotInfoError && (
+                      <div style={{ fontSize: 12, color: "#ef4444" }}>{slotInfoError}</div>
+                    )}
+                    {!slotInfoLoading && !slotInfoError && slotInfo && (
+                      <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+                        <img
+                          src={slotInfo.imageUrl}
+                          alt={slotInfo.name || "Student"}
+                          style={{
+                            width: 56,
+                            height: 56,
+                            borderRadius: "50%",
+                            objectFit: "cover",
+                            border: "1px solid #cbd5e1",
+                          }}
+                        />
+                        <div style={{ minWidth: 0 }}>
+                          <div style={{ fontSize: 13, fontWeight: 700, color: "#0f172a" }}>{slotInfo.name}</div>
+                          <div style={{ fontSize: 12, color: "#334155", wordBreak: "break-word" }}>{slotInfo.email}</div>
+                          <div style={{ fontSize: 12, color: "#475569" }}>Roll No: {slotInfo.rollNo}</div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
                 <p style={{ fontSize: 12, color: "#64748b", marginBottom: 16 }}>
                   This slot will be <strong style={{ color: "#9ca3af" }}>blocked</strong> and unavailable.
                 </p>
                 <div style={{ display: "flex", gap: 10 }}>
-                  <button onClick={() => setPopup(null)} disabled={updating} style={cancelBtn}>Cancel</button>
+                  <button
+                    onClick={() => {
+                      slotInfoRequestIdRef.current += 1;
+                      setPopup(null);
+                    }}
+                    disabled={updating}
+                    style={cancelBtn}
+                  >
+                    Cancel
+                  </button>
                   <button onClick={handleBlock} disabled={updating} style={{ ...actionBtn, background: "#9ca3af" }}>
                     {updating ? "Saving..." : "Block"}
                   </button>

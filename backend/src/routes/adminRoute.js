@@ -1,6 +1,10 @@
 import express from "express";
 import { authenticateToken } from "../middlewares/authMiddleware.js";
-import { blockSlot, unblockSlot } from "../controllers/adminController.js";
+import {
+  blockSlot,
+  unblockSlot,
+  getInfo,
+} from "../controllers/adminController.js";
 
 const router = express.Router();
 
@@ -12,5 +16,7 @@ router.post("/admin/slot/block", blockSlot);
 
 // Unblock a slot
 router.post("/admin/slot/unblock", unblockSlot);
+
+router.get("/admin/slot/info", getInfo);
 
 export default router;
