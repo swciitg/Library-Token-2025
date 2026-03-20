@@ -151,7 +151,7 @@ export const checkStudentStatus = async (req, res) => {
       }
 
       return res.status(200).json({
-        message: `You are banned collect your bag from slot id ${entry.slotId} to keep using onestop`,
+        message: `You are currently banned. Please collect your belongings from slot ID ${entry.slotId}. For further assistance or to continue using OneStop, kindly contact support.`,
         isBanned: true,
         slotId: entry.slotId,
       });
