@@ -75,6 +75,14 @@ wss.on("connection", async (ws, req) => {
         }),
       );
     } else {
+      const leftTime = new Date().toLocaleString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+      });
       ws.send(
         JSON.stringify({
           type: "slot_info",
@@ -84,6 +92,7 @@ wss.on("connection", async (ws, req) => {
             time: entry.createdAt.getTime(),
             date: entry.createdAt.toISOString().split("T")[0],
             timeString: entry.createdAt.toTimeString().split(" ")[0],
+            message: `Collect your bag before ${leftTime}`,
           },
         }),
       );

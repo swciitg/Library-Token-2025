@@ -74,6 +74,7 @@ export const addDeleteEntry = async (req, res, next) => {
         minute: "2-digit",
         second: "2-digit",
       });
+      console.log(`Collect your bag before ${leftTime}`);
       const slotData = {
         type: "slot_info",
         data: {
