@@ -75,7 +75,19 @@ wss.on("connection", async (ws, req) => {
         }),
       );
     } else {
-      const leftTime = new Date().toLocaleString("en-US", {
+      const now = new Date();
+
+      // Convert to UTC timestamp
+      const utcTime = now.getTime() + now.getTimezoneOffset() * 60000;
+
+      // Add IST offset (5 hours 30 minutes)
+      const istTime = new Date(utcTime + 5.5 * 60 * 60 * 1000);
+
+      // Add 48 hours
+      istTime.setHours(istTime.getHours() + 48);
+
+      // Format result
+      const leftTime = istTime.toLocaleString("en-US", {
         year: "numeric",
         month: "long",
         day: "numeric",
