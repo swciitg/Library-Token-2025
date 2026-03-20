@@ -19,7 +19,14 @@ export const addDeleteEntry = async (req, res, next) => {
     if (existing) {
       // retrive
       await prisma.entry.delete({ where: { roll_no: rollNo } });
-      await prisma.student.delete({ where: {roll_no: rollNo}});
+      const student = await prisma.student.findUnique({
+        where: { roll_no: rollNo },
+      });
+      if (student) {
+        await prisma.student.delete({
+          where: { roll_no: rollNo },
+        });
+      }
       await prisma.slot.update({
         where: { id: existing.slotId },
         data: { isEmpty: true },
@@ -59,9 +66,18 @@ export const addDeleteEntry = async (req, res, next) => {
       const now = new Date();
       const formattedDate = now.toISOString().split("T")[0];
       const formattedTime = now.toTimeString().split(" ")[0];
+      const leftTime = new Date().toLocaleString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+      });
       const slotData = {
         type: "slot_info",
         data: {
+          message: `Collect your bag before ${leftTime}`,
           slotId: emptySlot.id,
           isEmpty: false,
           time: Date.now(),
@@ -111,7 +127,7 @@ export const checkStudentStatus = async (req, res) => {
     const diffHours = diffMs / (1000 * 60 * 60);
 
     // 0 - 24 hrs
-    if (diffHours <= 1/30) {
+    if (diffHours <= 1 / 30) {
       return res.status(200).json({
         message: null,
         isBanned: false,
@@ -120,7 +136,7 @@ export const checkStudentStatus = async (req, res) => {
     }
 
     // 24 - 48 hrs
-    if (diffHours > 1/30 && diffHours <= 1/15) {
+    if (diffHours > 1 / 30 && diffHours <= 1 / 15) {
       const remaining = Math.ceil(48 - diffHours);
       return res.status(200).json({
         message: `Collect your bag in ${remaining} hrs`,
@@ -130,10 +146,9 @@ export const checkStudentStatus = async (req, res) => {
     }
 
     // > 48 hrs
-    if (diffHours >= 1/15){
-
+    if (diffHours >= 1 / 15) {
       let student = await prisma.student.findUnique({
-        where: {roll_no: rollNo},
+        where: { roll_no: rollNo },
       });
 
       if (!student) {
