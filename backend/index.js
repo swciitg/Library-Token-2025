@@ -118,14 +118,6 @@ wss.on("connection", async (ws, req) => {
     if (payload.type === "generate_token") {
       await handleGenerateToken(ws, payload);
     }
-
-    if (payload.type === "generate_token") {
-      await handleGenerateToken(ws, payload);
-    }
-
-    if (payload.type === "store_token") {
-      await handleStoreToken(ws, payload);
-    }
   });
 
   ws.on("close", () => {
@@ -147,10 +139,15 @@ const handleGenerateToken = async (ws, payload) => {
     }
     token = `#${token}#`;
     console.log("Generated token: ", token);
+
+    const check = await redisClient.set(token, ws.roll_no, "EX", 30);
+    console.log("SET TOKEN:", JSON.stringify(token), token.length);
+
     ws.send(
       JSON.stringify({
-        type: "token_generated",
-        data: { token },
+        type: "token_stored",
+        data: { roll_no: ws.roll_no, token },
+        time: new Date(Date.now() + 30 * 1000).toISOString(),
       }),
     );
   } catch (err) {
@@ -161,37 +158,6 @@ const handleGenerateToken = async (ws, payload) => {
         message: "Internal token generation error",
       }),
     );
-  }
-};
-
-const handleStoreToken = async (ws, payload) => {
-  try {
-    console.log("yaha pe aaya mein this function is called");
-    const { token, roll_no } = payload.data;
-    console.log("Storing token:", token, "for roll_no", roll_no);
-    if (!token) {
-      ws.send(JSON.stringify({ type: "error", message: "Token is required" }));
-      return;
-    }
-    if (!roll_no) {
-      ws.send(
-        JSON.stringify({ type: "roll_invalid", message: "Invalid roll" }),
-      );
-      return;
-    }
-
-    const check = await redisClient.set(token, roll_no, "EX", 30);
-    console.log("SET TOKEN:", JSON.stringify(token), token.length);
-
-    ws.send(
-      JSON.stringify({
-        type: "token_stored",
-        data: { roll_no, token },
-      }),
-    );
-  } catch (err) {
-    console.error("Token store error:", err);
-    ws.send(JSON.stringify({ type: "error", message: "Internal token error" }));
   }
 };
 
