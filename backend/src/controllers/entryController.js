@@ -111,7 +111,7 @@ export const checkStudentStatus = async (req, res) => {
     const diffHours = diffMs / (1000 * 60 * 60);
 
     // 0 - 24 hrs
-    if (diffHours <= 24) {
+    if (diffHours <= 1/30) {
       return res.status(200).json({
         message: null,
         isBanned: false,
@@ -120,7 +120,7 @@ export const checkStudentStatus = async (req, res) => {
     }
 
     // 24 - 48 hrs
-    if (diffHours > 24 && diffHours <= 48) {
+    if (diffHours > 1/30 && diffHours <= 1/15) {
       const remaining = Math.ceil(48 - diffHours);
       return res.status(200).json({
         message: `Collect your bag in ${remaining} hrs`,
@@ -130,7 +130,7 @@ export const checkStudentStatus = async (req, res) => {
     }
 
     // > 48 hrs
-    if (diffHours >=0){
+    if (diffHours >= 1/15){
 
       let student = await prisma.student.findUnique({
         where: {roll_no: rollNo},
@@ -151,7 +151,7 @@ export const checkStudentStatus = async (req, res) => {
       }
 
       return res.status(200).json({
-        message: `You are banned collect your bag from slot id ${entry.slotId} to keep using onestop`,
+        message: `You are currently banned. Please collect your belongings from slot ID ${entry.slotId}. For further assistance or to continue using OneStop, kindly contact support.`,
         isBanned: true,
         slotId: entry.slotId,
       });
