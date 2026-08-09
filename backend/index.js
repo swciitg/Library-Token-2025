@@ -77,7 +77,7 @@ wss.on("connection", async (ws, req) => {
     } else {
       const entryTime = new Date(entry.createdAt);
       const deadline = new Date(entryTime.getTime() + 48 * 60 * 60 * 1000);
-      const leftTime = deadline.toLocaleString("en-US", {
+      const leftTime = deadline.toISOString("en-US", {
         year: "numeric",
         month: "long",
         day: "numeric",
