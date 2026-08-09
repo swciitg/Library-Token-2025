@@ -75,19 +75,7 @@ wss.on("connection", async (ws, req) => {
         }),
       );
     } else {
-      const now = new Date();
-
-      // Convert to UTC timestamp
-      const utcTime = now.getTime() + now.getTimezoneOffset() * 60000;
-
-      // Add IST offset (5 hours 30 minutes)
-      const istTime = new Date(utcTime + 5.5 * 60 * 60 * 1000);
-
-      // Add 48 hours
-      istTime.setHours(istTime.getHours() + 48);
-
-      // Format result
-      const leftTime = istTime.toLocaleString("en-US", {
+      const leftTime = new Date().toLocaleString("en-US", {
         year: "numeric",
         month: "long",
         day: "numeric",
@@ -197,32 +185,32 @@ app.use(process.env.BASE_ROUTE, tokenRoute);
 app.use(process.env.BASE_ROUTE, adminRoute);
 
 // this is debug route remove it while deploying
-app.get(
-  process.env.BASE_ROUTE + "/debug/get-token/:token",
-  async (req, res) => {
-    try {
-      const token = req.params.token;
-      const value = await redisClient.get(token);
+// app.get(
+//   process.env.BASE_ROUTE + "/debug/get-token/:token",
+//   async (req, res) => {
+//     try {
+//       const token = req.params.token;
+//       const value = await redisClient.get(token);
 
-      res.json({
-        token,
-        value,
-        exists: value !== null,
-      });
-    } catch (err) {
-      console.error("Redis read error:", err);
-      res.status(500).json({ error: "Redis read failure" });
-    }
-  },
-);
+//       res.json({
+//         token,
+//         value,
+//         exists: value !== null,
+//       });
+//     } catch (err) {
+//       console.error("Redis read error:", err);
+//       res.status(500).json({ error: "Redis read failure" });
+//     }
+//   },
+// );
 
-app.get("/library/ws-status", (req, res) => {
-  res.json({
-    status: "active",
-    connectedUsers: req.userConnections.size,
-    timestamp: Date.now(),
-  });
-});
+// app.get("/library/ws-status", (req, res) => {
+//   res.json({
+//     status: "active",
+//     connectedUsers: req.userConnections.size,
+//     timestamp: Date.now(),
+//   });
+// });
 app.use(errorHandler);
 
 process.on("SIGINT", async () => {
