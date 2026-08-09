@@ -75,7 +75,9 @@ wss.on("connection", async (ws, req) => {
         }),
       );
     } else {
-      const leftTime = new Date().toLocaleString("en-US", {
+      const entryTime = new Date(entry.createdAt);
+      const deadline = new Date(entryTime.getTime() + 48 * 60 * 60 * 1000);
+      const leftTime = deadline.toLocaleString("en-US", {
         year: "numeric",
         month: "long",
         day: "numeric",
@@ -94,6 +96,7 @@ wss.on("connection", async (ws, req) => {
             date: entry.createdAt.toISOString().split("T")[0],
             timeString: entry.createdAt.toTimeString().split(" ")[0],
             message: `Collect your bag before ${leftTime}`,
+            // deadline: deadline.toISOString(),
           },
         }),
       );
