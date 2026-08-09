@@ -69,16 +69,21 @@ export const addDeleteEntry = async (req, res, next) => {
       const leftTime = deadline.toISOString();
       const formattedDate = deadline.toISOString().split("T")[0];
       const formattedTime = deadline.toISOString().split("T")[1].split(".")[0];
-      const displayDeadline = deadline.toLocaleString("en-US", {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-        hour12: false,
-      });
+      const displayDeadline =
+        deadline
+          .toLocaleString("en-US", {
+            timeZone: "Asia/Kolkata",
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit",
+            hour12: false,
+          })
+          .replace(" ", "T") + "+05:30";
 
+      console.log(displayDeadline);
       console.log("entryController.js");
       console.log(`Collect your bag before ${displayDeadline}`);
       const slotData = {
