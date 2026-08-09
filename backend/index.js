@@ -83,6 +83,7 @@ wss.on("connection", async (ws, req) => {
         minute: "2-digit",
         second: "2-digit",
       });
+      console.log(`Collect your bag before ${leftTime}`);
       ws.send(
         JSON.stringify({
           type: "slot_info",
