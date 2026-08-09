@@ -77,18 +77,25 @@ wss.on("connection", async (ws, req) => {
     } else {
       const entryTime = new Date(entry.createdAt);
       const deadline = new Date(entryTime.getTime() + 48 * 60 * 60 * 1000);
+
       const leftTime = deadline.toISOString();
       const formattedDate = deadline.toISOString().split("T")[0];
-      const formattedTime = deadline.toISOString().split("T")[1].split(".")[0];
-      const displayDeadline = deadline.toLocaleString("en-GB", {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
+      const rawTime = new Intl.DateTimeFormat("en-GB", {
+        timeZone: "Asia/Kolkata",
         hour: "2-digit",
         minute: "2-digit",
         second: "2-digit",
         hour12: false,
-      });
+      }).format(deadline);
+      const formattedTime = rawTime.startsWith("24:")
+        ? rawTime.replace(/^24:/, "00:")
+        : rawTime;
+      const displayDeadline = `${new Intl.DateTimeFormat("en-US", {
+        timeZone: "Asia/Kolkata",
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      }).format(deadline)}, ${formattedTime}`;
 
       console.log(`Collect your bag before ${displayDeadline}`);
       ws.send(
