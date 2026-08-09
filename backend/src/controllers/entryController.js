@@ -64,9 +64,14 @@ export const addDeleteEntry = async (req, res, next) => {
       console.log(newEntry);
       console.log(emptySlot.id);
       const now = new Date();
-      const formattedDate = now.toISOString().split("T")[0];
-      const formattedTime = now.toTimeString().split(" ")[0];
-      const leftTime = new Date().toLocaleString("en-US", {
+      const createdAt = newEntry.createdAt;
+      const diffMs = now.getTime() - createdAt.getTime();
+      const diffHours = diffMs / (1000 * 60 * 60);
+
+      const entryTime = new Date(newEntry.createdAt);
+      const deadline = new Date(entryTime.getTime() + 48 * 60 * 60 * 1000);
+
+      const leftTime = deadline.toLocaleString("en-US", {
         year: "numeric",
         month: "long",
         day: "numeric",
