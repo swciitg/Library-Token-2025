@@ -69,7 +69,7 @@ export const addDeleteEntry = async (req, res, next) => {
       const leftTime = deadline.toISOString();
       const formattedDate = deadline.toISOString().split("T")[0];
       const formattedTime = deadline.toISOString().split("T")[1].split(".")[0];
-      const displayDeadline = deadline.toLocaleString("en-GB", {
+      const displayDeadline = deadline.toLocaleString("en-US", {
         year: "numeric",
         month: "short",
         day: "numeric",
