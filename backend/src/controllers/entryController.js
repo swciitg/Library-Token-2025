@@ -63,26 +63,14 @@ export const addDeleteEntry = async (req, res, next) => {
       // return res.send(entry);
       console.log(newEntry);
       console.log(emptySlot.id);
-      const now = new Date();
-      const createdAt = newEntry.createdAt;
-      const diffMs = now.getTime() - createdAt.getTime();
-      const diffHours = diffMs / (1000 * 60 * 60);
-
-      const formattedDate = now.toISOString().split("T")[0];
-      const formattedTime = now.toTimeString().split(" ")[0];
-
       const entryTime = new Date(newEntry.createdAt);
       const deadline = new Date(entryTime.getTime() + 48 * 60 * 60 * 1000);
 
-      const leftTime = deadline.toISOString("en-US", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-      });
-      console.log("entryController.js")
+      const leftTime = deadline.toISOString();
+      const formattedDate = deadline.toISOString().split("T")[0];
+      const formattedTime = deadline.toISOString().split("T")[1].split(".")[0];
+
+      console.log("entryController.js");
       console.log(`Collect your bag before ${leftTime}`);
       const slotData = {
         type: "slot_info",
@@ -90,7 +78,7 @@ export const addDeleteEntry = async (req, res, next) => {
           message: `Collect your bag before ${leftTime}`,
           slotId: emptySlot.id,
           isEmpty: false,
-          time: Date.now(),
+          time: deadline.getTime(),
           date: formattedDate,
           timeString: formattedTime,
         },

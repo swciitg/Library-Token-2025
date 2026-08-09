@@ -77,27 +77,22 @@ wss.on("connection", async (ws, req) => {
     } else {
       const entryTime = new Date(entry.createdAt);
       const deadline = new Date(entryTime.getTime() + 48 * 60 * 60 * 1000);
-      const leftTime = deadline.toISOString("en-US", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-      });
+      const leftTime = deadline.toISOString();
+      const formattedDate = deadline.toISOString().split("T")[0];
+      const formattedTime = deadline.toISOString().split("T")[1].split(".")[0];
+
       console.log(`Collect your bag before ${leftTime}`);
-      console.log("index.js");
       ws.send(
         JSON.stringify({
           type: "slot_info",
           data: {
             slotId: entry.slot.id,
             isEmpty: entry.slot.isEmpty,
-            time: entry.createdAt.getTime(),
-            date: entry.createdAt.toISOString().split("T")[0],
-            timeString: entry.createdAt.toTimeString().split(" ")[0],
+            time: deadline.getTime(),
+            date: formattedDate,
+            timeString: formattedTime,
             message: `Collect your bag before ${leftTime}`,
-            // deadline: deadline.toISOString(),
+            deadline: deadline.toISOString(),
           },
         }),
       );
