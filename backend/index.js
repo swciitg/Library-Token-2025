@@ -80,8 +80,17 @@ wss.on("connection", async (ws, req) => {
       const leftTime = deadline.toISOString();
       const formattedDate = deadline.toISOString().split("T")[0];
       const formattedTime = deadline.toISOString().split("T")[1].split(".")[0];
+      const displayDeadline = deadline.toLocaleString("en-GB", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: false,
+      });
 
-      console.log(`Collect your bag before ${leftTime}`);
+      console.log(`Collect your bag before ${displayDeadline}`);
       ws.send(
         JSON.stringify({
           type: "slot_info",
@@ -91,8 +100,8 @@ wss.on("connection", async (ws, req) => {
             time: deadline.getTime(),
             date: formattedDate,
             timeString: formattedTime,
-            message: `Collect your bag before ${leftTime}`,
-            deadline: deadline.toISOString(),
+            message: `Collect your bag before ${displayDeadline}`,
+            deadline: leftTime,
           },
         }),
       );
