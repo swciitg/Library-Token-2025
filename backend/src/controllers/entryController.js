@@ -67,6 +67,9 @@ export const addDeleteEntry = async (req, res, next) => {
       const createdAt = newEntry.createdAt;
       const diffMs = now.getTime() - createdAt.getTime();
       const diffHours = diffMs / (1000 * 60 * 60);
+      
+      const formattedDate = now.toISOString().split("T")[0];
+      const formattedTime = now.toTimeString().split(" ")[0];
 
       const entryTime = new Date(newEntry.createdAt);
       const deadline = new Date(entryTime.getTime() + 48 * 60 * 60 * 1000);
