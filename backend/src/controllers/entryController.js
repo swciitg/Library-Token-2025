@@ -81,7 +81,6 @@ export const addDeleteEntry = async (req, res, next) => {
             second: "2-digit",
             hour12: false,
           })
-          .replace(" ", "T") + "+05:30";
 
       console.log(displayDeadline);
       console.log("entryController.js");
