@@ -106,14 +106,16 @@ export const addDeleteEntry = async (req, res, next) => {
 export const checkStudentStatus = async (req, res) => {
   try {
     const rollNo = parseInt(req.query.rollNo, 10);
+    console.log("[checkStudentStatus] Request received for rollNo:", rollNo);
+
     const entry = await prisma.entry.findUnique({
       where: {
         roll_no: rollNo,
       },
     });
 
-    // If no slot exists
     if (!entry) {
+      console.log("[checkStudentStatus] No entry found for rollNo:", rollNo);
       return res.status(200).json({
         message: null,
         isBanned: false,
@@ -121,14 +123,34 @@ export const checkStudentStatus = async (req, res) => {
       });
     }
 
+    console.log(
+      "[checkStudentStatus] Entry found for rollNo:",
+      rollNo,
+      "with slotId:",
+      entry.slotId,
+    );
+
     const now = new Date();
     const createdAt = entry.createdAt;
 
     const diffMs = now.getTime() - createdAt.getTime();
     const diffHours = diffMs / (1000 * 60 * 60);
 
+    console.log(
+      "[checkStudentStatus] Time difference in hours:",
+      diffHours,
+      "[checkStudentStatus] Time difference in ms:",
+      diffMs,
+      "for rollNo:",
+      rollNo,
+    );
+
     // 0 - 24 hrs
     if (diffHours <= 1 / 30) {
+      console.log(
+        "[checkStudentStatus] Student is within first time window. rollNo:",
+        rollNo,
+      );
       return res.status(200).json({
         message: null,
         isBanned: false,
@@ -139,6 +161,12 @@ export const checkStudentStatus = async (req, res) => {
     // 24 - 48 hrs
     if (diffHours > 1 / 30 && diffHours <= 1 / 15) {
       const remaining = Math.ceil(48 - diffHours);
+      console.log(
+        "[checkStudentStatus] Student is in reminder window. rollNo:",
+        rollNo,
+        "remaining hrs:",
+        remaining,
+      );
       return res.status(200).json({
         message: `Collect your bag in ${remaining} hrs`,
         isBanned: false,
@@ -148,11 +176,19 @@ export const checkStudentStatus = async (req, res) => {
 
     // > 48 hrs
     if (diffHours >= 1 / 15) {
+      console.log(
+        "[checkStudentStatus] Student crossed 48-hour window. Banning rollNo:",
+        rollNo,
+      );
       let student = await prisma.student.findUnique({
         where: { roll_no: rollNo },
       });
 
       if (!student) {
+        console.log(
+          "[checkStudentStatus] Creating banned student record for rollNo:",
+          rollNo,
+        );
         await prisma.student.create({
           data: {
             roll_no: rollNo,
@@ -160,10 +196,19 @@ export const checkStudentStatus = async (req, res) => {
           },
         });
       } else if (!student.isBanned) {
+        console.log(
+          "[checkStudentStatus] Updating existing student record to banned for rollNo:",
+          rollNo,
+        );
         await prisma.student.update({
           where: { roll_no: rollNo },
           data: { isBanned: true },
         });
+      } else {
+        console.log(
+          "[checkStudentStatus] Student already marked as banned. rollNo:",
+          rollNo,
+        );
       }
 
       return res.status(200).json({
@@ -172,7 +217,16 @@ export const checkStudentStatus = async (req, res) => {
         slotId: entry.slotId,
       });
     }
+
+    console.log(
+      "[checkStudentStatus] No status condition matched for rollNo:",
+      rollNo,
+    );
   } catch (err) {
+    console.error(
+      "[checkStudentStatus] Error while checking student status:",
+      err,
+    );
     return res.status(500).json({ error: err.message });
   }
 };
