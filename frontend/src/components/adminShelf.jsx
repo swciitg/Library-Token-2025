@@ -260,7 +260,7 @@ function AdminShelfs() {
           display: "flex", alignItems: "center", justifyContent: "center", zIndex: 200,
         }}>
           <div style={{
-            background: "#fff", borderRadius: 14, padding: 24, width: 300,
+            background: "#fff", borderRadius: 14, padding: 24, width: 500,
             boxShadow: "0 20px 60px rgba(0,0,0,0.15)", textAlign: "center",
           }}>
 
@@ -345,8 +345,8 @@ function AdminShelfs() {
                           src={slotInfo.imageUrl}
                           alt={slotInfo.name || "Student"}
                           style={{
-                            width: 56,
-                            height: 56,
+                            width: 28,
+                            height: 28,
                             borderRadius: "50%",
                             objectFit: "cover",
                             border: "1px solid #cbd5e1",
