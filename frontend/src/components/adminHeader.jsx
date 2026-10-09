@@ -7,7 +7,7 @@ export const AdminHeader = () => {
 
   const handleLogout = () => {
     localStorage.removeItem("token");
-    window.location.href = "/test/library/admin/login";
+    window.location.href = "/library/admin/login";
   };
 
   return (
